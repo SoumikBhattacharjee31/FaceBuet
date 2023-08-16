@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from 'axios';
-export default function Register(props) {
+
+export default function Register() {
   const [formData, setFormData] = useState({
     user_name: "",
     mobile: "",
@@ -17,12 +17,22 @@ export default function Register(props) {
     });
   };
 
- 
+  const handleSubmit = async (event) => {
+    console.log("formData")
+    event.preventDefault();
+    const response = await fetch('/api/addusers/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+  };
 
   return (
     <div className="register-form" align="center">
       <h2>Registration Form</h2>
-      <form >
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="user_name"
@@ -74,9 +84,7 @@ export default function Register(props) {
           />
         </div>
         <br />
-        <button type="submit" onSubmit={()=>{
-          props.handleSubmit(formData)
-        }}>Submit</button>
+        <button type="submit">Submit</button>
       </form>
     </div>
   );

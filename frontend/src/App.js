@@ -21,30 +21,19 @@ let [userList, setUserList] = useState();
   let getUsers = async () => {
     try {
       const response = await fetch('/api/users/');
-//console.log()
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
       const jsonData = await response.json();
-      console.log(jsonData)
+      // console.log(jsonData)
       setData(jsonData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
    
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const response = await fetch('/api/addusers/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(event.formData),
-      });
-    
-  };
+  
   
   const addUser = (user_name,mobile_number,profile_pic,cover_photo,birth_date) => {
     let newUserList = [...userList];
@@ -66,7 +55,7 @@ let [userList, setUserList] = useState();
     // <Router>
       <div className="App">
         <Navbar />
-        <Register />
+        <Register /*props={handleSubmit}*//>
         <div className="userdata">
           {
             data.map((datum,index)=>
