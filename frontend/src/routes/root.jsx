@@ -40,7 +40,7 @@ const defaultTheme = createTheme();
 
 function SignUp() {
   const [image, setImage] = useState(null);
-  const [showPassword,setShowPassword]=useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -133,7 +133,6 @@ function SignUp() {
                 <input
                   type="file"
                   accept="image/*"
-                
                   onChange={handleImageChange}
                   style={{ marginBottom: "10px" }}
                 />
@@ -143,7 +142,7 @@ function SignUp() {
                     <img
                       src={URL.createObjectURL(image)}
                       alt="Selected"
-                      {...formData.profile_pic=URL.createObjectURL(image)} 
+                      {...(formData.profile_pic = URL.createObjectURL(image))}
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
                   </div>
@@ -154,7 +153,6 @@ function SignUp() {
                 <input
                   type="file"
                   accept="image/*"
-                 
                   onChange={handleImageChange}
                   style={{ marginBottom: "10px" }}
                 />
@@ -163,7 +161,7 @@ function SignUp() {
                     <p>Selected Image: {image.name}</p>
                     <img
                       src={URL.createObjectURL(image)}
-                      {...formData.cover_photo=URL.createObjectURL(image)} 
+                      {...(formData.cover_photo = URL.createObjectURL(image))}
                       alt="Selected"
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
@@ -189,7 +187,7 @@ function SignUp() {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                         >
-                          {showPassword ?<Visibility />  : <VisibilityOff />}
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -220,17 +218,19 @@ function SignUp() {
                 />
               </Grid>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
+            <a href="/routes/SignIn">
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign Up
+              </Button>
+            </a>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/routes/SignIn" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
