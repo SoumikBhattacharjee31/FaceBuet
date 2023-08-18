@@ -30,7 +30,8 @@ export default function Register() {
   };
 
   return (
-    <div className="register-form" align="center">
+    
+  <div className="register-form" align="center">
       <h2>Registration Form</h2>
       <form onSubmit={handleSubmit}>
         <input
