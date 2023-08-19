@@ -1,4 +1,5 @@
 import * as React from "react";
+import {useState} from "react"
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -36,13 +37,31 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
+  const [formData, setFormData] = useState({
+    mobile: "",
+    password: "",
+  });
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log(formData);
+    const response = await fetch("/api/signIn/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(formData),
+    });
+    const jsonData = await response.json();
+    console.log(jsonData)
+    // console.log(response.body)
   };
 
   return (
@@ -73,10 +92,12 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="mobile"
+              label="Mobile Number"
+              name="mobile"
+              value={formData.mobile}
+              autoComplete="mobile"
+              onChange={handleInputChange}
               autoFocus
             />
             <TextField
@@ -87,7 +108,9 @@ export default function SignIn() {
               label="Password"
               type="password"
               id="password"
+              value={formData.password}
               autoComplete="current-password"
+              onChange={handleInputChange}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
