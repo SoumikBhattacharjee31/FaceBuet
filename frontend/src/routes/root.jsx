@@ -39,12 +39,19 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 function SignUp() {
-  const [image, setImage] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
+  const [coverPhoto, setCoverPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleImageChange = (e) => {
+  
+  const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
-    setImage(file);
+    setProfilePic(file);
+    
+  };
+  const handleCoverPhotoChange = (e) => {
+    const file = e.target.files[0];
+    setCoverPhoto(file);
+    
   };
 
   const [formData, setFormData] = useState({
@@ -129,20 +136,20 @@ function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <label htmlFor="cover-photo-input">Profile Picture</label>
+                <label htmlFor="profile-pic-input">Profile Picture</label>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  onChange={handleProfilePicChange}
                   style={{ marginBottom: "10px" }}
                 />
-                {image && (
+                {profilePic && (
                   <div>
-                    <p>Selected Image: {image.name}</p>
+                    <p>Selected Image: {profilePic.name}</p>
                     <img
-                      src={URL.createObjectURL(image)}
+                      src={URL.createObjectURL(profilePic)}
                       alt="Selected"
-                      {...(formData.profile_pic = URL.createObjectURL(image))}
+                      {...(formData.profile_pic = URL.createObjectURL(profilePic))}
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
                   </div>
@@ -153,15 +160,15 @@ function SignUp() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageChange}
+                  onChange={handleCoverPhotoChange}
                   style={{ marginBottom: "10px" }}
                 />
-                {image && (
+                {coverPhoto && (
                   <div>
-                    <p>Selected Image: {image.name}</p>
+                    <p>Selected Image: {coverPhoto.name}</p>
                     <img
-                      src={URL.createObjectURL(image)}
-                      {...(formData.cover_photo = URL.createObjectURL(image))}
+                      src={URL.createObjectURL(coverPhoto)}
+                      {...(formData.cover_photo = URL.createObjectURL(coverPhoto))}
                       alt="Selected"
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
@@ -218,16 +225,17 @@ function SignUp() {
                 />
               </Grid>
             </Grid>
-            <a href="/routes/SignIn">
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+                <a href="/routes/SignIn" style={{ textDecoration: 'none', color: 'inherit' } }>
                 Sign Up
-              </Button>
-            </a>
+              </a>
+            </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/routes/SignIn" variant="body2">

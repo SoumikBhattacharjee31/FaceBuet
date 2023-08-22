@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useState} from "react"
+import { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,6 +13,10 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Alert } from "@mui/material";
+// Import useHistory
 
 function Copyright(props) {
   return (
@@ -37,10 +41,14 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     mobile: "",
     password: "",
   });
+
+  const navigate = useNavigate(); // Initialize the history object
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -48,6 +56,7 @@ export default function SignIn() {
       [name]: value,
     });
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log(formData);
@@ -56,12 +65,15 @@ export default function SignIn() {
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(formData),
     });
     const jsonData = await response.json();
-    console.log(jsonData)
-    // console.log(response.body)
+    console.log(jsonData);
+
+    // After successful form submission, navigate to the desired route
+
+    if (jsonData.length != 0) navigate("/routes/PersistentDrawerLeft");
+    else setError("Your Mobile number or password is wrong!");
   };
 
   return (
@@ -124,6 +136,10 @@ export default function SignIn() {
             >
               Sign In
             </Button>
+            <div>
+              {/* Other form elements */}
+              {error && <Alert severity="error">{error}</Alert>}
+            </div>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">
@@ -131,7 +147,7 @@ export default function SignIn() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

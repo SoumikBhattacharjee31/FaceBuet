@@ -22,6 +22,7 @@ from .serializers import FriendReqSerializer, EventsSerializer, EventMediaSerial
 @api_view(['POST'])
 def setUsers(request):
     print("hello")
+    
     user_name = request.data.get('user_name')
     password = request.data.get('password')
     mobile = request.data.get('mobile')

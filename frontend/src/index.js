@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Root from "./routes/root";
 import SignIn from "./routes/SignIn";
+import PersistentDrawerLeft from "./routes/PersistentDrawerLeft";
 
 
 import  { loader as rootLoader } from "./routes/root";
@@ -21,7 +22,12 @@ const router = createBrowserRouter([
    
     
   },
-  
+  {
+    path: "/routes/PersistentDrawerLeft",
+    element: <PersistentDrawerLeft/>,
+   
+    
+  },
   
   
 ]);
