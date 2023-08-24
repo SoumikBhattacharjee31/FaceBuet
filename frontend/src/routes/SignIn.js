@@ -43,7 +43,7 @@ const defaultTheme = createTheme();
 export default function SignIn() {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    mobile: "",
+    email: "",
     password: "",
   });
 
@@ -104,11 +104,11 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="mobile"
-              label="Mobile Number"
-              name="mobile"
-              value={formData.mobile}
-              autoComplete="mobile"
+              id="email"
+              label="Email Address"
+              name="email"
+              value={formData.email}
+              autoComplete="email"
               onChange={handleInputChange}
               autoFocus
             />

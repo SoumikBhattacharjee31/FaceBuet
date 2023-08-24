@@ -17,6 +17,7 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
+import axios from "axios";
 
 function Copyright(props) {
   return (
@@ -42,25 +43,23 @@ function SignUp() {
   const [profilePic, setProfilePic] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     setProfilePic(file);
-    
   };
   const handleCoverPhotoChange = (e) => {
     const file = e.target.files[0];
     setCoverPhoto(file);
-    
   };
 
   const [formData, setFormData] = useState({
     user_name: "",
     mobile: "",
-    profile_pic: "",
-    cover_photo: "",
+
     password: "",
     birth_date: "",
+    email: "",
   });
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -83,6 +82,36 @@ function SignUp() {
 
       body: JSON.stringify(formData),
     });
+
+    const profilePicData = new FormData();
+    profilePicData.append("profile_pic", profilePic);
+    const coverPhotoData = new FormData();
+    coverPhotoData.append("cover_photo", coverPhoto);
+    axios
+      .post("/api/addImages/", profilePicData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        // Handle success, e.g., show a success message
+      })
+      .catch((error) => {
+        // Handle error, e.g., show an error message
+      });
+
+    axios
+      .post("/api/addImages/", coverPhotoData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        // Handle success, e.g., show a success message
+      })
+      .catch((error) => {
+        // Handle error, e.g., show an error message
+      });
   };
 
   return (
@@ -149,7 +178,7 @@ function SignUp() {
                     <img
                       src={URL.createObjectURL(profilePic)}
                       alt="Selected"
-                      {...(formData.profile_pic = URL.createObjectURL(profilePic))}
+                      {...URL.createObjectURL(profilePic)}
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
                   </div>
@@ -168,7 +197,7 @@ function SignUp() {
                     <p>Selected Image: {coverPhoto.name}</p>
                     <img
                       src={URL.createObjectURL(coverPhoto)}
-                      {...(formData.cover_photo = URL.createObjectURL(coverPhoto))}
+                      {...URL.createObjectURL(coverPhoto)}
                       alt="Selected"
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
@@ -216,6 +245,21 @@ function SignUp() {
                   }}
                 />
               </Grid>
+              <Grid>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  value={formData.email}
+                  autoComplete="email"
+                  onChange={handleInputChange}
+                  autoFocus
+                />
+              </Grid>
+
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
@@ -225,14 +269,17 @@ function SignUp() {
                 />
               </Grid>
             </Grid>
-            
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-                <a href="/routes/SignIn" style={{ textDecoration: 'none', color: 'inherit' } }>
+              <a
+                href="/routes/SignIn"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 Sign Up
               </a>
             </Button>

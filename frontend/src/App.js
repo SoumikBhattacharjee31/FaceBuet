@@ -16,7 +16,7 @@ let [userList, setUserList] = useState();
 
   useEffect(() => {
     getUsers();
-  }, []);
+  },[]);
 
   let getUsers = async () => {
     try {
