@@ -26,21 +26,8 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-const cardStyles = {
-  display: "flex",
-  flexDirection: "column",
-  // maxWidth: 1000, // Set the maximum width to make it moderately larger
-  border: "2px solid #ccc",
-  borderRadius: "10px",
-};
-
-const mediaStyles = {
-  flex: "1",
-  objectFit: "cover",
-};
-
-export default function Post(props) {
-  const postData = props.postData;
+export default function GroupCard(props) {
+  const postData =  props.postData;
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -48,15 +35,12 @@ export default function Post(props) {
   };
 
   return (
-    <Card sx={cardStyles}>
+    <Card sx={{Width: 500, border: "2px solid #ccc", borderRadius: "10px" }}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
-              src={postData.media[0]}
-              alt="R"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            {/* <img src={postData.media[0]} alt="R"></img> */}
+            <img src={postData.media[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
         }
         action={
@@ -64,14 +48,15 @@ export default function Post(props) {
             <MoreVertIcon />
           </IconButton>
         }
-        title={postData.user_name}
+        title={postData.group_name}
         subheader={postData.init_time}
+        // subheader="August 21 , 2023"
       />
       <CardMedia
         component="img"
+        height="194"
         image={postData.media[0]}
         alt="Paella dish"
-        sx={mediaStyles}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">
@@ -96,7 +81,11 @@ export default function Post(props) {
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography paragraph></Typography>
+          
+          <Typography paragraph>
+           
+          </Typography>
+         
         </CardContent>
       </Collapse>
     </Card>

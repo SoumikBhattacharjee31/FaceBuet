@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 
 //start
 
-const drawerWidth = 240;
+const drawerWidth = 420;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",

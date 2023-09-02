@@ -260,7 +260,277 @@ def set_user_post(request):
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
+@api_view(['POST'])
+def get_groups(request):
+    user_id = request.data.get('user_id')
+    group_type = request.data.get('group_type')
+    groups_data = []
+    with connections['default'].cursor() as cursor:
+        sql_query  = 'SELECT G.group_id, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time FROM GROUPS G '
+        sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
+        sql_query += 'JOIN GROUP_MEMBERS GM ON GM.group_id = G.group_id '
+        sql_query += 'WHERE GM.user_id = %s AND G.group_type = %s '
+        sql_query += 'GROUP BY G.group_id, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time '
+        cursor.execute(sql_query, [user_id, group_type])
+        rows = cursor.fetchall()
+    for row in rows:
+        group_id = row[0]
+        group_name = row[1]
+        description_id = row[2]
+        description = row[3]
+        init_time = row[4]
+        update_time = row[5]
+        with connections['default'].cursor() as cursor:
+            sql_query  = 'SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM '
+            sql_query += 'JOIN CARD_DESCRIPTION CD ON CDM.description_id = CD.description_id '
+            sql_query += 'WHERE CD.description_id = %s '
+            sql_query += 'ORDER BY CD.init_time '
+            cursor.execute(sql_query, [description_id])
+            rows2 = cursor.fetchall()
+            media = []
+            for row2 in rows2:
+                
+                media.append('/images/storage/'+str(row2[0]))
+                
+            group_data = {}
+            group_data['group_id'] = group_id
+            group_data['group_name'] = group_name
+            group_data['media'] = media
+            group_data['description'] = description
+            group_data['init_time'] = init_time
+            group_data['update_time'] = update_time
+            groups_data.append(group_data)
+    return Response(groups_data)
 
+@api_view(['POST'])
+def get_friend_list(request):
+    try:
+        user_id = request.data.get('user_id')
+        profile_data = []
+
+        # friend_data
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT U.user_id, U.user_name FROM BEFRIENDS B "
+            sql_query += "JOIN USERS U ON B.friend_id = U.user_id "
+            sql_query += "WHERE B.user_id = %s "
+            sql_query += "UNION "
+            sql_query +=  "SELECT U.user_id, U.user_name FROM BEFRIENDS B "
+            sql_query += "JOIN USERS U ON B.user_id = U.user_id "
+            sql_query += "WHERE B.friend_id = %s "
+            cursor.execute(sql_query, [user_id, user_id])
+            rows = cursor.fetchall()
+        for row in rows:
+            friend_id = row[0]
+            user_name = row[1]
+            with connections['default'].cursor() as cursor:
+                sql_query  = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+                sql_query += "JOIN POST P ON UPP.post_id = P.post_id "
+                sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+                sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+                sql_query += "WHERE UPP.user_id = %s "
+                sql_query += "ORDER BY CD.update_time"
+                cursor.execute(sql_query, [friend_id])
+                rows2 = cursor.fetchall()
+                media = []
+                for row2 in rows2:
+                    media.append('/images/storage/'+str(row2[0]))
+                # print(media)
+                temp_obj = {}
+                temp_obj['user_id'] = user_id
+                temp_obj['user_name'] = user_name
+                temp_obj['media'] = media
+                profile_data.append(temp_obj)
+        #         print(temp_obj)
+        # print(profile_data)
+        return Response(profile_data)
+    except Exception as e:
+        return JsonResponse({'message': 'error'})
+
+@api_view(['POST'])
+def get_friend_req_list(request):
+    try:
+        user_id = request.data.get('user_id')
+        profile_data = []
+
+        # friend_data
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT U.user_id, U.user_name FROM FRIEND_REQ FR "
+            sql_query += "JOIN USERS U ON FR.friend_req_id = U.user_id "
+            sql_query += "WHERE FR.user_id = %s "
+            cursor.execute(sql_query, [user_id])
+            rows = cursor.fetchall()
+            print(rows)
+        for row in rows:
+            friend_id = row[0]
+            user_name = row[1]
+            with connections['default'].cursor() as cursor:
+                sql_query  = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+                sql_query += "JOIN POST P ON UPP.post_id = P.post_id "
+                sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+                sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+                sql_query += "WHERE UPP.user_id = %s "
+                sql_query += "ORDER BY CD.update_time"
+                cursor.execute(sql_query, [friend_id])
+                rows2 = cursor.fetchall()
+                media = []
+                for row2 in rows2:
+                    media.append('/images/storage/'+str(row2[0]))
+                # print(media)
+                temp_obj = {}
+                temp_obj['user_id'] = user_id
+                temp_obj['user_name'] = user_name
+                temp_obj['media'] = media
+                profile_data.append(temp_obj)
+        #         print(temp_obj)
+        # print(profile_data)
+        return Response(profile_data)
+    except Exception as e:
+        return JsonResponse({'message': 'error'})
+
+@api_view(['POST'])
+def set_group(request):
+    user_id = request.POST.get('user_id')
+    group_name = request.POST.get('group_name')
+    description = request.POST.get('description')
+    print('hello')
+    uploaded_image = request.FILES['media']
+    group_type = request.POST.get('group_type')
+    media_id = set_media_internal(uploaded_image)
+    description_id = set_card_description_internal(description)
+    set_card_description_media_internal(description_id, media_id)
+
+    with connections['default'].cursor() as cursor:
+        group_id_obj = cursor.var(int)
+        sql_query = "INSERT INTO GROUPS (group_name, description_id, group_type) VALUES (%s, %s, %s) RETURNING group_id INTO %s"
+        cursor.execute(sql_query, [group_name, description_id, group_type, group_id_obj])
+        group_id = group_id_obj.getvalue()[0]
+
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO GROUP_MEMBERS (user_id, group_id) VALUES (%s, %s)"
+        cursor.execute(sql_query, [user_id, group_id])
+    
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO GROUP_OWNED (user_id, group_id) VALUES (%s, %s)"
+        cursor.execute(sql_query, [user_id, group_id])
+    
+    return JsonResponse({'message': 'Image uploaded successfully'})
+
+@api_view(['POST'])
+def get_chat_friend_list(request):
+    try:
+        user_id = request.data.get('user_id')
+        profile_data = []
+
+        # friend_data
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT U.user_id, U.user_name FROM BEFRIENDS B "
+            sql_query += "JOIN USERS U ON B.user_id = U.user_id "
+            sql_query += "WHERE B.friend_id = %s "
+            sql_query += "AND EXISTS( "
+            sql_query += "SELECT * FROM MESSAGE M "
+            sql_query += "WHERE (M.sender_id = U.user_id AND M.receiver_id = B.friend_id) "
+            sql_query += "OR (M.receiver_id = U.user_id AND M.sender_id = B.friend_id) "
+            sql_query += ") "
+            sql_query += "UNION "
+            sql_query += "SELECT U.user_id, U.user_name FROM BEFRIENDS B "
+            sql_query += "JOIN USERS U ON B.friend_id = U.user_id "
+            sql_query += "WHERE B.user_id = %s "
+            sql_query += "AND EXISTS( "
+            sql_query += "SELECT * FROM MESSAGE M "
+            sql_query += "WHERE (M.sender_id = U.user_id AND M.receiver_id = B.friend_id) "
+            sql_query += "OR (M.receiver_id = U.user_id AND M.sender_id = B.friend_id) "
+            sql_query += ") "
+            cursor.execute(sql_query, [user_id])
+            rows = cursor.fetchall()
+        for row in rows:
+            friend_id = row[0]
+            user_name = row[1]
+            with connections['default'].cursor() as cursor:
+                sql_query  = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+                sql_query += "JOIN POST P ON UPP.post_id = P.post_id "
+                sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+                sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+                sql_query += "WHERE UPP.user_id = %s "
+                sql_query += "ORDER BY CD.update_time"
+                cursor.execute(sql_query, [friend_id])
+                rows2 = cursor.fetchall()
+                media = []
+                for row2 in rows2:
+                    media.append('/images/storage/'+str(row2[0]))
+                # print(media)
+                temp_obj = {}
+                temp_obj['user_id'] = user_id
+                temp_obj['user_name'] = user_name
+                temp_obj['media'] = media
+                profile_data.append(temp_obj)
+        #         print(temp_obj)
+        # print(profile_data)
+        return Response(profile_data)
+    except Exception as e:
+        return JsonResponse({'message': 'error'})
+
+# @api_view(['POST'])
+# def search_users(request):
+#     query = request.data.get('key')
+#     sql_query = 'SELECT user_id, user_name FROM users WHERE LOWER(user_name) LIKE LOWER(%s)'
+#     with connections['default'].cursor() as cursor:
+#         cursor.execute(sql_query, ['%' + query + '%'])
+#         results = cursor.fetchall()
+#     serialized_results = [{"id": user_id, "user_name": user_name} for user_id, user_name in results]
+#     return Response(serialized_results)
+
+# @api_view(['POST'])
+# def get_user_profile(request):
+#     try:
+#         user_id = request.POST.get('user_id')
+#         profile_data = {}
+
+#         # profile_pic
+#         with connections['default'].cursor() as cursor:
+#             sql_query =  "SELECT CDM.media_id FROM USERS U "
+#             sql_query += "JOIN USER_PROFILE_PIC UPP ON U.user_id = UPP.user_id "
+#             sql_query += "JOIN POST P ON UPP.post_id = P.post_id "
+#             sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+#             sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.media_id = CDM.media_id "
+#             sql_query += "WHERE user_id = %s "
+#             sql_query += "ORDER BY CDM.media_id DESC"
+#             cursor.execute(sql_query, [user_id])
+#             profile_pic = cursor.fetchall()[0]
+#             profile_data['profile_pic'] = profile_pic
+        
+#         # cover_photo
+#         with connections['default'].cursor() as cursor:
+#             sql_query =  "SELECT CDM.media_id FROM USERS U "
+#             sql_query += "JOIN USER_COVER_PHOTO UCP ON U.user_id = UCP.user_id "
+#             sql_query += "JOIN POST P ON UCP.post_id = P.post_id "
+#             sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+#             sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.media_id = CDM.media_id "
+#             sql_query += "WHERE user_id = %s "
+#             sql_query += "ORDER BY CDM.media_id DESC"
+#             cursor.execute(sql_query, [user_id])
+#             cover_photo = cursor.fetchall()[0]
+#             profile_data['cover_photo'] = cover_photo
+        
+#         # user_data
+#         with connections['default'].cursor() as cursor:
+#             sql_query =  "SELECT user_name FROM USERS "
+#             sql_query += "WHERE user_id = %s"
+#             cursor.execute(sql_query, [user_id])
+#             user_name = cursor.fetchall()[0]
+#             profile_data['user_name'] = user_name
+        
+#         # friends count
+#         with connections['default'].cursor() as cursor:
+#             sql_query =  "SELECT COUNT(*) FROM BEFRIENDS "
+#             sql_query += "WHERE user_id = %s "
+#             sql_query += "OR friend_id = %s"
+#             cursor.execute(sql_query, [user_id])
+#             friend_count = cursor.fetchall()[0]
+#             profile_data['friend_count'] = friend_count[0]
+        
+#         return Response(profile_data)
+#     except Exception as e:
+#         return JsonResponse({'message': 'error'})
 
 
 

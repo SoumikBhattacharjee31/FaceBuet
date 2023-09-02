@@ -1,9 +1,13 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Post from "../components/Post";
+import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import PageCard from "./PageCard";
+import DeleteIcon from '@mui/icons-material/Delete';
+import SendIcon from '@mui/icons-material/Send';
+import Stack from '@mui/material/Stack';
 
 const drawerWidth = 240;
 
@@ -35,53 +39,52 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Feed({open, setCurrentComponent}) {
+export default function Pages({ open, setCurrentComponent }) {
   const fetched_user_id = localStorage.getItem("user_id");
-  const request_data = {user_id:fetched_user_id};
+  const request_data = { user_id: fetched_user_id, group_type: "page" };
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const buttonStyle = {
-    width: '400px',  // Adjust the width as needed
-    height: '50px', // Adjust the height as needed
-  };
-  const handleButtonClick = () => {
-    setCurrentComponent("createpost")
-  };
   React.useEffect(() => {
-    
     const response = axios
-      .post("http://localhost:8000/api/home/", request_data, {
+      .post("http://localhost:8000/api/get_groups/", request_data, {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then (response => {
+      })
+      .then((response) => {
         setData(response.data);
         setIsLoading(false);
-      })
+      });
   }, []);
+  const handleButtonClick = () => {
+    setCurrentComponent("createpage")
+  };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ position: 'relative', display: 'flex' }}>
+      <Button 
+      variant="contained" 
+      endIcon={<SendIcon />}
+      style={{
+        position: 'fixed',
+        bottom: '16px', // Adjust this value as needed
+        right: '430px', // Adjust this value as needed
+        zIndex: 100,
+      }}
+      onClick={handleButtonClick}
+      >
+        Send
+      </Button>
       <Main open={open}>
         <DrawerHeader />
-        <Button
-          color="primary"
-          disabled={false}
-          size="large"
-          variant="outlined"
-          fullWidth
-          onClick={handleButtonClick}
-        >
-          What's on your mind
-        </Button>
         {isLoading ? (
           <></>
         ) : (
           data.map((postData, index) => (
-            <Post key={index} postData={postData} />
+            <PageCard key={index} postData={postData} />
           ))
         )}
       </Main>
     </Box>
   );
-};
+}

@@ -59,7 +59,6 @@ export default function SignIn() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(formData);
     const response = await fetch("http://localhost:8000/api/signIn/", {
       method: "POST",
       headers: {
@@ -69,7 +68,6 @@ export default function SignIn() {
     });
     const jsonData = await response.json();
     localStorage.setItem("user_id", jsonData["user_id"]);
-    // console.log(localStorage.getItem("user_id"))
 
     // After successful form submission, navigate to the desired route
 

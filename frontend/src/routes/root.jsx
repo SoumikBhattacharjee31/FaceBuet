@@ -80,7 +80,6 @@ function SignUp() {
       }
       request_data.append("profile_pic", profilePic);
       request_data.append("cover_photo", coverPhoto);
-      console.log(request_data);
       const response = await axios
         .post("http://localhost:8000/api/addusers/", request_data, {
           headers: {

@@ -107,15 +107,16 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Navbar({ isOpen, toggleSidebar }) {
+export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
 
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
 
 
   
   const linksLeft = {
+    // Profile: "/",
     Friends: "/", // Define the URL for Friends
+    Requests: "/",
     Groups: "/", // Define the URL for Groups
     Messages:"/",
     Pages:"/",
@@ -184,6 +185,8 @@ export default function Navbar({ isOpen, toggleSidebar }) {
 
             if (text === "Friends") {
               iconComponent = <GroupIcon />;
+            } else if (text === "Requests") {
+              iconComponent = <Diversity3Icon />;
             } else if (text === "Groups") {
               iconComponent = <Diversity3Icon />;
             }
@@ -208,8 +211,9 @@ export default function Navbar({ isOpen, toggleSidebar }) {
             return (
               <ListItem key={text} disablePadding>
                 <Link
-                  to={url}
+                  // to={url}
                   style={{ textDecoration: "none", color: "inherit" }}
+                  onClick={() => setCurrentComponent(text)}
                 >
                   {" "}
                   {/* Use the URL associated with each text */}
