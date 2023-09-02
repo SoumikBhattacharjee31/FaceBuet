@@ -18,6 +18,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
   return (
@@ -43,6 +44,7 @@ function SignUp() {
   const [profilePic, setProfilePic] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate(); 
 
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
@@ -70,49 +72,26 @@ function SignUp() {
   };
 
   const handleSubmit = async (event) => {
-    console.log("formData");
-    console.log(formData);
     event.preventDefault();
-
-    const response = await fetch("/api/addusers/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(formData),
-    });
-
-    const profilePicData = new FormData();
-    profilePicData.append("profile_pic", profilePic);
-    const coverPhotoData = new FormData();
-    coverPhotoData.append("cover_photo", coverPhoto);
-    axios
-      .post("/api/addImages/", profilePicData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        // Handle success, e.g., show a success message
-      })
-      .catch((error) => {
-        // Handle error, e.g., show an error message
-      });
-
-    axios
-      .post("/api/addImages/", coverPhotoData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        // Handle success, e.g., show a success message
-      })
-      .catch((error) => {
-        // Handle error, e.g., show an error message
-      });
-  };
+    try{
+      const request_data = new FormData();
+      for (const key in formData) {
+        request_data.append(key, formData[key]);
+      }
+      request_data.append("profile_pic", profilePic);
+      request_data.append("cover_photo", coverPhoto);
+      console.log(request_data);
+      const response = await axios
+        .post("http://localhost:8000/api/addusers/", request_data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            // "X-CSRFToken": csrfToken,
+          },
+        })
+        if ('error' in response.data){console.log(response.data.error);}
+        else {navigate("/routes/SignIn");}
+      } catch (error) {console.log(error);}
+    };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -178,11 +157,12 @@ function SignUp() {
                     <img
                       src={URL.createObjectURL(profilePic)}
                       alt="Selected"
-                      {...URL.createObjectURL(profilePic)}
+                      // {...URL.createObjectURL(profilePic)}
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
                   </div>
                 )}
+                
               </Grid>
               <Grid item xs={12}>
                 <label htmlFor="cover-photo-input">Cover Photo</label>
@@ -197,7 +177,7 @@ function SignUp() {
                     <p>Selected Image: {coverPhoto.name}</p>
                     <img
                       src={URL.createObjectURL(coverPhoto)}
-                      {...URL.createObjectURL(coverPhoto)}
+                      // {...URL.createObjectURL(coverPhoto)}
                       alt="Selected"
                       style={{ maxWidth: "100%", marginBottom: "10px" }}
                     />
@@ -269,20 +249,21 @@ function SignUp() {
                 />
               </Grid>
             </Grid>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              <a
+            {/* <div> */}
+              {/* <a
                 href="/routes/SignIn"
                 style={{ textDecoration: "none", color: "inherit" }}
-              >
-                Sign Up
-              </a>
-            </Button>
+              > */}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                    Sign Up
+                </Button>
+              {/* </a> */}
+            {/* </div> */}
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/routes/SignIn" variant="body2">

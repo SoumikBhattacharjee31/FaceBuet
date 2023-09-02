@@ -26,7 +26,10 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function Post() {
+export default function Post(props) {
+  const postData =  props.postData;
+  // console.log('hello World')
+  console.log(postData.media[0])
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -38,7 +41,8 @@ export default function Post() {
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            R
+            {/* <img src={postData.media[0]} alt="R"></img> */}
+            <img src={postData.media[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
         }
         action={
@@ -46,18 +50,19 @@ export default function Post() {
             <MoreVertIcon />
           </IconButton>
         }
-        title="Sheikh Rahat Mahmud"
-        subheader="August 21 , 2023"
+        title={postData.user_name}
+        subheader={postData.init_time}
+        // subheader="August 21 , 2023"
       />
       <CardMedia
         component="img"
         height="194"
-        image="/images/profile.jpg"
+        image={postData.media[0]}
         alt="Paella dish"
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">
-          Hello, guys...I am Rahat...what's up?
+          {postData.description}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
