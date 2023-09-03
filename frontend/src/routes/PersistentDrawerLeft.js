@@ -10,6 +10,9 @@ import Groups from "../components/Groups";
 import CreateGroup from "../components/CreateGroup";
 import Pages from "../components/Pages";
 import CreatePage from "../components/CreatePage";
+import ChatHome from "../components/ChatHome";
+import Events from "../components/Events";
+import CreateEvent from "../components/CreateEvent";
 
 
 export default function PersistentDrawerLeft() {
@@ -23,7 +26,7 @@ export default function PersistentDrawerLeft() {
   return (
     <Box sx={{ display: "flex" }}>
       <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} setCurrentComponent = {setCurrentComponent} />
-      { currentComponent === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent.toLowerCase() === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createpost" && < CreatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Groups" && < Groups open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Pages" && < Pages open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
@@ -31,6 +34,9 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "Requests" && < FriendReq open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "creategroup" && < CreateGroup open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createpage" && < CreatePage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "Messages" && < ChatHome open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "Events" && < Events open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "createevent" && < CreateEvent open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       <RightSidebar/>
     </Box>
   );

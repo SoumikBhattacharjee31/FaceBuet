@@ -115,6 +115,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
   
   const linksLeft = {
     // Profile: "/",
+    Feed: "/",
     Friends: "/", // Define the URL for Friends
     Requests: "/",
     Groups: "/", // Define the URL for Groups
@@ -183,7 +184,9 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
           {Object.entries(linksLeft).map(([text, url]) => {
             let iconComponent = null;
 
-            if (text === "Friends") {
+            if (text === "Feed") {
+              iconComponent = <GroupIcon />;
+            } else if (text === "Friends") {
               iconComponent = <GroupIcon />;
             } else if (text === "Requests") {
               iconComponent = <Diversity3Icon />;

@@ -428,8 +428,8 @@ def get_chat_friend_list(request):
             sql_query += "WHERE B.friend_id = %s "
             sql_query += "AND EXISTS( "
             sql_query += "SELECT * FROM MESSAGE M "
-            sql_query += "WHERE (M.sender_id = U.user_id AND M.receiver_id = B.friend_id) "
-            sql_query += "OR (M.receiver_id = U.user_id AND M.sender_id = B.friend_id) "
+            sql_query += "WHERE (M.sender_id = B.user_id AND M.receiver_id = B.friend_id) "
+            sql_query += "OR (M.receiver_id = B.user_id AND M.sender_id = B.friend_id) "
             sql_query += ") "
             sql_query += "UNION "
             sql_query += "SELECT U.user_id, U.user_name FROM BEFRIENDS B "
@@ -437,14 +437,26 @@ def get_chat_friend_list(request):
             sql_query += "WHERE B.user_id = %s "
             sql_query += "AND EXISTS( "
             sql_query += "SELECT * FROM MESSAGE M "
-            sql_query += "WHERE (M.sender_id = U.user_id AND M.receiver_id = B.friend_id) "
-            sql_query += "OR (M.receiver_id = U.user_id AND M.sender_id = B.friend_id) "
+            sql_query += "WHERE (M.sender_id = B.user_id AND M.receiver_id = B.friend_id) "
+            sql_query += "OR (M.receiver_id = B.user_id AND M.sender_id = B.friend_id) "
             sql_query += ") "
-            cursor.execute(sql_query, [user_id])
+            cursor.execute(sql_query, [user_id, user_id])
             rows = cursor.fetchall()
+        print(2)
         for row in rows:
             friend_id = row[0]
             user_name = row[1]
+            with connections['default'].cursor() as cursor:
+                sql_query = "SELECT CD.description, CD.init_time FROM MESSAGE M "
+                sql_query += "JOIN CARD_DESCRIPTION CD ON CD.description_id = M.description_id "
+                sql_query += "WHERE M.sender_id = %s AND M.receiver_id = %s "
+                sql_query += "OR M.sender_id = %s AND M.receiver_id = %s "
+                sql_query += "ORDER BY CD.init_time DESC "
+                cursor.execute(sql_query, [user_id, friend_id, friend_id, user_id])
+                messages = cursor.fetchall()
+                last_message =  messages[0][0]
+                last_message_time = messages[0][1]
+            print(3)
             with connections['default'].cursor() as cursor:
                 sql_query  = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
                 sql_query += "JOIN POST P ON UPP.post_id = P.post_id "
@@ -462,12 +474,102 @@ def get_chat_friend_list(request):
                 temp_obj['user_id'] = user_id
                 temp_obj['user_name'] = user_name
                 temp_obj['media'] = media
+                temp_obj['last_message'] = last_message
+                temp_obj['last_message_time'] = last_message_time
                 profile_data.append(temp_obj)
+            print(4)
         #         print(temp_obj)
         # print(profile_data)
         return Response(profile_data)
     except Exception as e:
         return JsonResponse({'message': 'error'})
+
+@api_view(['POST'])
+def get_events(request):
+    print(0)
+    user_id = request.data.get('user_id')
+    group_type = 'event'
+    groups_data = []
+    with connections['default'].cursor() as cursor:
+        sql_query  = 'SELECT E.event_id, E.start_time, E.end_time, E.location, G.group_id, G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time FROM EVENTS E '
+        sql_query += 'JOIN GROUPS G ON E.group_id = G.group_id '
+        sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
+        sql_query += 'JOIN GROUP_MEMBERS GM ON GM.group_id = G.group_id '
+        sql_query += 'WHERE GM.user_id = %s AND G.group_type = %s '
+        sql_query += 'GROUP BY E.event_id, E.start_time, E.end_time, E.location, G.group_id, G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time '
+        print(1)
+        cursor.execute(sql_query, [user_id, group_type])
+        print(2)
+        rows = cursor.fetchall()
+    for row in rows:
+        event_id = row[0]
+        start_time = row[1]
+        end_time = row[2]
+        location = row[3]
+        group_id = row[4]
+        group_name = row[5]
+        description_id = row[6]
+        description = row[7]
+        init_time = row[8]
+        update_time = row[9]
+        with connections['default'].cursor() as cursor:
+            sql_query  = 'SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM '
+            sql_query += 'JOIN CARD_DESCRIPTION CD ON CDM.description_id = CD.description_id '
+            sql_query += 'WHERE CD.description_id = %s '
+            sql_query += 'ORDER BY CD.init_time '
+            cursor.execute(sql_query, [description_id])
+            rows2 = cursor.fetchall()
+            media = []
+            for row2 in rows2:
+                
+                media.append('/images/storage/'+str(row2[0]))
+                
+            group_data = {}
+            group_data['event_id'] = event_id
+            group_data['start_time'] = start_time
+            group_data['end_time'] = end_time
+            group_data['location'] = location
+            group_data['event_name'] = group_name
+            group_data['media'] = media
+            group_data['description'] = description
+            group_data['init_time'] = init_time
+            group_data['update_time'] = update_time
+            groups_data.append(group_data)
+    return Response(groups_data)
+
+@api_view(['POST'])
+def set_event(request):
+    user_id = request.POST.get('user_id')
+    event_name = request.POST.get('event_name')
+    description = request.POST.get('description')
+    uploaded_image = request.FILES['media']
+    group_type = 'event'
+    start_time = request.POST.get('start_time')
+    end_time = request.POST.get('end_time')
+    location = request.POST.get('location')
+    media_id = set_media_internal(uploaded_image)
+    description_id = set_card_description_internal(description)
+    set_card_description_media_internal(description_id, media_id)
+
+    with connections['default'].cursor() as cursor:
+        group_id_obj = cursor.var(int)
+        sql_query = "INSERT INTO GROUPS (group_name, description_id, group_type) VALUES (%s, %s, %s) RETURNING group_id INTO %s"
+        cursor.execute(sql_query, [event_name, description_id, group_type, group_id_obj])
+        group_id = group_id_obj.getvalue()[0]
+
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO GROUP_MEMBERS (user_id, group_id) VALUES (%s, %s)"
+        cursor.execute(sql_query, [user_id, group_id])
+    
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO GROUP_OWNED (user_id, group_id) VALUES (%s, %s)"
+        cursor.execute(sql_query, [user_id, group_id])
+    
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO EVENTS (start_time, end_time, location, group_id) VALUES (TO_DATE(%s, 'YYYY-MM-DD'), TO_DATE(%s, 'YYYY-MM-DD'), %s, %s)"
+        cursor.execute(sql_query, [start_time, end_time, location,  group_id])
+    
+    return JsonResponse({'message': 'Image uploaded successfully'})
 
 # @api_view(['POST'])
 # def search_users(request):
