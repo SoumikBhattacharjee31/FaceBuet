@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
-import EventCard from "./EventCard";
+import MarketPlaceCard from "./MarketPlaceCard";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import Stack from '@mui/material/Stack';
@@ -39,14 +39,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Events({ open, setCurrentComponent }) {
+export default function MarketPlace({ open, setCurrentComponent }) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = { user_id: fetched_user_id };
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   React.useEffect(() => {
     const response = axios
-      .post("http://localhost:8000/api/get_events/", request_data, {
+      .post("http://localhost:8000/api/get_marketplace/", request_data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -54,10 +54,11 @@ export default function Events({ open, setCurrentComponent }) {
       .then((response) => {
         setData(response.data);
         setIsLoading(false);
+        console.log(response.data)
       });
   }, []);
   const handleButtonClick = () => {
-    setCurrentComponent("createevent")
+    setCurrentComponent("createmarketplace")
   };
 
   return (
@@ -81,7 +82,7 @@ export default function Events({ open, setCurrentComponent }) {
           <></>
         ) : (
           data.map((postData, index) => (
-            <EventCard key={index} postData={postData} />
+            <MarketPlaceCard key={index} postData={postData} />
           ))
         )}
       </Main>

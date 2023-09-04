@@ -13,6 +13,8 @@ import CreatePage from "../components/CreatePage";
 import ChatHome from "../components/ChatHome";
 import Events from "../components/Events";
 import CreateEvent from "../components/CreateEvent";
+import MarketPlace from "../components/MarketPlace";
+import CreateMarketPlace from "../components/CreateMarketPlace";
 
 
 export default function PersistentDrawerLeft() {
@@ -37,6 +39,8 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "Messages" && < ChatHome open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Events" && < Events open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createevent" && < CreateEvent open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "MarketPlace" && < MarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       <RightSidebar/>
     </Box>
   );

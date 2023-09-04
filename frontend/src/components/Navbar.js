@@ -30,6 +30,7 @@ import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import { alpha } from '@mui/material/styles';
 import axios from "axios";
+import { useState, useEffect } from "react";
 
 //start
 const Search = styled('div')(({ theme }) => ({
@@ -110,7 +111,52 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
 
   const theme = useTheme();
+  const [data, setData] = React.useState([]);
+  const [searchInput, setSearchInput] = React.useState("");
+  // const [isLoading, setIsLoading] = React.useState(true);
 
+  // const handleSearchChange = async (event) =>{
+  //   const request_data = {key:event.target.value}
+  //   setSearchInput(event.target.value)
+  //   console.log(request_data)
+  //   // React.useEffect(() => {
+    
+  //     const response = axios
+  //       .post("http://localhost:8000/api/search_users/", request_data, {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }).then (response => {
+  //         setData(response.data);
+  //         console.log(data)
+  //         // setIsLoading(false);
+  //       })
+  //   // }, []);
+  // }
+
+  const handleSearchChange = async (event) => {
+  const inputValue = event.target.value;
+  setSearchInput(inputValue);
+  console.log(inputValue);
+
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/api/search_users/",
+      { key: inputValue },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    setData(response.data);
+    console.log(response.data);
+    // setIsLoading(false); // You can uncomment this if you need it
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
 
   
   const linksLeft = {
@@ -151,9 +197,29 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
+              onChange={handleSearchChange}
             />
           </Search>
         </Toolbar>
+      {/* <List style={{zIndex:"100"}}>
+        {data && data.map((item) => (
+          <ListItem key={item.id}>
+            <ListItemText primary={item.user_name} /> 
+          </ListItem>
+        ))}
+      </List> */}
+      {/* <datalist id="list">
+          { data.map( d => <option key={d.id} value={d.user_name} /> )}
+        </datalist> */}
+        {/* <form> */}
+        {/* <label htmlFor="cars">Type a car:</label> */}
+        {/* <input list="list" id="cars" name="car"/>
+            <datalist id="list">
+            { data.map( d => <option key={d.id} value={d.user_name} /> )}
+            </datalist> */}
+            {/* <br/><br/> */}
+            {/* <input type="submit" value="Submit"/> */}
+    {/* </form> */}
       </AppBar>
       {/* Navbar end */}
       {/* Left Sidebar Start */}
@@ -183,7 +249,6 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
         <List>
           {Object.entries(linksLeft).map(([text, url]) => {
             let iconComponent = null;
-
             if (text === "Feed") {
               iconComponent = <GroupIcon />;
             } else if (text === "Friends") {

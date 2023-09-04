@@ -34,7 +34,7 @@ def set_card_description_media_internal(description_id, media_id):
 def set_post_internal(user_id, description_id, type = 'user_post'):
     with connections['default'].cursor() as cursor:
         post_id_obj = cursor.var(int)
-        sql_query = "INSERT INTO POST (user_id, description_id, post_of) VALUES (%s, %s, %s) RETURNING description_id INTO %s"
+        sql_query = "INSERT INTO POST (user_id, description_id, post_of) VALUES (%s, %s, %s) RETURNING post_id INTO %s"
         print('start')
         cursor.execute(sql_query, [user_id, description_id, type, post_id_obj])
         print('end')
@@ -571,15 +571,102 @@ def set_event(request):
     
     return JsonResponse({'message': 'Image uploaded successfully'})
 
-# @api_view(['POST'])
-# def search_users(request):
-#     query = request.data.get('key')
-#     sql_query = 'SELECT user_id, user_name FROM users WHERE LOWER(user_name) LIKE LOWER(%s)'
-#     with connections['default'].cursor() as cursor:
-#         cursor.execute(sql_query, ['%' + query + '%'])
-#         results = cursor.fetchall()
-#     serialized_results = [{"id": user_id, "user_name": user_name} for user_id, user_name in results]
-#     return Response(serialized_results)
+@api_view(['POST'])
+def search_users(request):
+    query = request.data.get('key')
+    sql_query = 'SELECT user_id, user_name FROM users WHERE LOWER(user_name) LIKE %s'
+    with connections['default'].cursor() as cursor:
+        cursor.execute(sql_query, ['%' + str(query).lower() + '%'])
+        print('%' + str(query).lower() + '%')
+        results = cursor.fetchall()
+        serialized_results = [{"id": user_id, "user_name": user_name} for user_id, user_name in results]
+        print(serialized_results)
+    # serialized_results.append({"error":"hello"})
+    return Response(serialized_results)
+
+@api_view(['POST'])
+def get_marketplace(request):
+    with connections['default'].cursor() as cursor:
+        sql_query  = "SELECT M.product_name, M.price, CD.description, CD.init_time, CD.update_time, P.user_id, CD.description_id, U.user_id FROM MARKETPLACE M "
+        sql_query += "JOIN POST P ON M.POST_ID = P.POST_ID "
+        sql_query += "JOIN CARD_DESCRIPTION CD ON P.DESCRIPTION_ID = CD.DESCRIPTION_ID "
+        sql_query += "JOIN USERS U ON U.USER_ID = P.USER_ID "
+        cursor.execute(sql_query)
+        rows = cursor.fetchall()
+    posts = []
+    for row in rows:
+        product_name = row[0]
+        price = row[1]
+        description = row[2]
+        init_time = row[3]
+        update_time = row[4]
+        user_id = row[5]
+        description_id = row[6]
+        user_name = row[7]
+
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+            sql_query += "JOIN POST P ON P.POST_ID=UPP.POST_ID  "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON P.DESCRIPTION_ID=CD.DESCRIPTION_ID  "
+            sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.DESCRIPTION_ID=CDM.DESCRIPTION_ID  "
+            sql_query += "WHERE UPP.user_id = %s "
+            cursor.execute(sql_query, [user_id])
+            rows2 = cursor.fetchall()
+            profile_pic = []
+            for row2 in rows2:
+                profile_pic.append('/images/storage/'+str(row2[0]))
+
+        with connections['default'].cursor() as cursor:
+            sql_query  = 'SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM '
+            sql_query += 'JOIN CARD_DESCRIPTION CD ON CDM.description_id = CD.description_id '
+            sql_query += 'WHERE CD.description_id = %s '
+            sql_query += 'ORDER BY CD.init_time '
+            cursor.execute(sql_query, [description_id])
+            rows2 = cursor.fetchall()
+            media = []
+            for row2 in rows2:
+                media.append('/images/storage/'+str(row2[0]))
+        
+        temp_obj = {}
+        temp_obj['product_name'] = product_name
+        temp_obj['price'] = price
+        temp_obj['description'] = description
+        temp_obj['init_time'] = init_time
+        temp_obj['update_time'] = update_time
+        temp_obj['user_id'] = user_id
+        temp_obj['user_name'] = user_name
+        temp_obj['profile_pic'] = profile_pic
+        temp_obj['media'] = media
+        posts.append(temp_obj)
+        
+    print(posts)
+
+    return Response(posts)
+
+
+@api_view(['POST'])
+def set_marketplace(request):
+    user_id = request.POST.get('user_id')
+    product_name = request.POST.get('product_name')
+    price = request.POST.get('price')
+    description = request.POST.get('description')
+    print('hello')
+    uploaded_image = request.FILES['media']
+    post_type = 'market'
+    media_id = set_media_internal(uploaded_image)
+    description_id = set_card_description_internal(description)
+    set_card_description_media_internal(description_id, media_id)
+    post_id = set_post_internal(user_id, description_id, post_type)
+    print('pid: ', post_id)
+    print(product_name, price)
+    with connections['default'].cursor() as cursor:
+        marketplace_id_obj = cursor.var(int)
+        sql_query = "INSERT INTO MARKETPLACE (PRODUCT_NAME, PRICE, POST_ID ) VALUES (%s, %s, %s) RETURNING marketplace_id INTO %s"
+        cursor.execute(sql_query, [product_name, price, post_id, marketplace_id_obj])
+        marketplace_id = marketplace_id_obj.getvalue()[0]
+    
+    return JsonResponse({'message': 'Image uploaded successfully'})
+
 
 # @api_view(['POST'])
 # def get_user_profile(request):

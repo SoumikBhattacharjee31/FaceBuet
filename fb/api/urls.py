@@ -13,5 +13,8 @@ urlpatterns = [
     path('get_chat_friend_list/', views.get_chat_friend_list, name='get_chat_friend_list'),
     path('get_events/', views.get_events, name='get_events'),
     path('set_event/', views.set_event, name='set_event'),
+    path('search_users/', views.search_users, name='search_users'),
+    path('get_marketplace/', views.get_marketplace, name='get_marketplace'),
+    path('set_marketplace/', views.set_marketplace, name='set_marketplace'),
     # path('get_user_profile/', views.get_user_profile, name='get_user_profile'),
 ]
