@@ -15,9 +15,12 @@ import Events from "../components/Events";
 import CreateEvent from "../components/CreateEvent";
 import MarketPlace from "../components/MarketPlace";
 import CreateMarketPlace from "../components/CreateMarketPlace";
+import Profile from "../components/Profile";
+import SearchPage from "../components/SearchPage";
 
 
 export default function PersistentDrawerLeft() {
+  const [searchData, setSearchData] = React.useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -27,7 +30,7 @@ export default function PersistentDrawerLeft() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} setCurrentComponent = {setCurrentComponent} />
+      <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} setCurrentComponent = {setCurrentComponent} setSearchData = {setSearchData} />
       { currentComponent.toLowerCase() === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createpost" && < CreatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Groups" && < Groups open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
@@ -41,6 +44,8 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "createevent" && < CreateEvent open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "MarketPlace" && < MarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} />}
       <RightSidebar/>
     </Box>
   );

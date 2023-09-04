@@ -108,10 +108,10 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
+export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, setSearchData }) {
 
   const theme = useTheme();
-  const [data, setData] = React.useState([]);
+  // const [data, setData] = React.useState([]);
   const [searchInput, setSearchInput] = React.useState("");
   // const [isLoading, setIsLoading] = React.useState(true);
 
@@ -135,12 +135,14 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
   // }
 
   const handleSearchChange = async (event) => {
+    // setCurrentComponent('search')
   const inputValue = event.target.value;
   setSearchInput(inputValue);
   console.log(inputValue);
 
   try {
-    const response = await axios.post(
+    if(inputValue!="")
+    {const response = await axios.post(
       "http://localhost:8000/api/search_users/",
       { key: inputValue },
       {
@@ -150,8 +152,12 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
       }
     );
 
-    setData(response.data);
-    console.log(response.data);
+    setSearchData(response.data);
+    }
+    else
+      setSearchData([])
+
+    // console.log(response.data);
     // setIsLoading(false); // You can uncomment this if you need it
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -160,7 +166,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
 
   
   const linksLeft = {
-    // Profile: "/",
+    Profile: "/",
     Feed: "/",
     Friends: "/", // Define the URL for Friends
     Requests: "/",
@@ -171,6 +177,10 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
     Videos:"/",
     MarketPlace:"/",
   };
+
+  const enableSearch = async () => {
+    setCurrentComponent('search')
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -198,6 +208,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
               onChange={handleSearchChange}
+              onClick={enableSearch}
             />
           </Search>
         </Toolbar>
@@ -249,7 +260,9 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent }) {
         <List>
           {Object.entries(linksLeft).map(([text, url]) => {
             let iconComponent = null;
-            if (text === "Feed") {
+            if (text === "Profile") {
+              iconComponent = <GroupIcon />;
+            } if (text === "Feed") {
               iconComponent = <GroupIcon />;
             } else if (text === "Friends") {
               iconComponent = <GroupIcon />;
