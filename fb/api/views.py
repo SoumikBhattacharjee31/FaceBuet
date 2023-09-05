@@ -220,6 +220,7 @@ def get_comment_info_internal(comment_id):
             comment_data['init_time'] = init_time
             comment_data['update_time'] = update_time
             comment_data['description'] = description
+            comment_data['comment_id'] = comment_id
 
         # user
         with connections['default'].cursor() as cursor:
@@ -316,7 +317,6 @@ def setUsers(request):
         email = request.POST.get('email')
         profile_pic = request.FILES['profile_pic']
         cover_photo = request.FILES['cover_photo']
-        print(user_name, password, mobile_number, birth_date, email)
         if user_name and password and mobile_number and birth_date and email:
             user_id = set_user_internal(user_name, password, mobile_number, birth_date, email)
             if profile_pic:
@@ -337,13 +337,10 @@ def set_user_post(request):
         user_id = request.POST.get('user_id')
         description = request.POST.get('description')
         uploaded_image = request.FILES['media']
-        print(1)
         media_id = set_media_internal(uploaded_image)
         description_id = set_card_description_internal(description)
         set_card_description_media_internal(description_id, media_id)
-        print(2)
         post_id = set_post_internal(user_id, description_id, 'user_post')
-        print(3)
         return JsonResponse({'message': 'Image uploaded successfully'})
     except IntegrityError:
         return Response({"error": "IntegrityError: User already exists"}, status=400)
@@ -451,7 +448,6 @@ def get_friend_req_list(request):
             sql_query += "WHERE FR.user_id = %s "
             cursor.execute(sql_query, [user_id])
             rows = cursor.fetchall()
-            print(rows)
         for row in rows:
             friend_id = row[0]
             user_name = row[1]
@@ -484,7 +480,6 @@ def set_group(request):
     user_id = request.POST.get('user_id')
     group_name = request.POST.get('group_name')
     description = request.POST.get('description')
-    print('hello')
     uploaded_image = request.FILES['media']
     group_type = request.POST.get('group_type')
     media_id = set_media_internal(uploaded_image)
@@ -569,7 +564,6 @@ def get_chat_friend_list(request):
                 temp_obj['last_message'] = last_message
                 temp_obj['last_message_time'] = last_message_time
                 profile_data.append(temp_obj)
-            print(4)
         #         print(temp_obj)
         # print(profile_data)
         return Response(profile_data)
@@ -748,7 +742,6 @@ def get_marketplace(request):
         temp_obj['media'] = media
         posts.append(temp_obj)
         
-    print(posts)
 
     return Response(posts)
 
@@ -758,15 +751,12 @@ def set_marketplace(request):
     product_name = request.POST.get('product_name')
     price = request.POST.get('price')
     description = request.POST.get('description')
-    print('hello')
     uploaded_image = request.FILES['media']
     post_type = 'market'
     media_id = set_media_internal(uploaded_image)
     description_id = set_card_description_internal(description)
     set_card_description_media_internal(description_id, media_id)
     post_id = set_post_internal(user_id, description_id, post_type)
-    print('pid: ', post_id)
-    print(product_name, price)
     with connections['default'].cursor() as cursor:
         marketplace_id_obj = cursor.var(int)
         sql_query = "INSERT INTO MARKETPLACE (PRODUCT_NAME, PRICE, POST_ID ) VALUES (%s, %s, %s) RETURNING marketplace_id INTO %s"
@@ -829,7 +819,6 @@ def get_user_profile(request):
             friend_count = cursor.fetchall()[0]
             profile_data['friend_count'] = friend_count[0]
         
-        print(profile_data)
         return Response(profile_data)
     except Exception as e:
         return JsonResponse({'message': 'error'})
@@ -838,7 +827,6 @@ def get_user_profile(request):
 def get_comment_info(request):
     try:
         post_id = request.data.get('post_id')
-        print(post_id)
         comment_ids = get_post_comment_id_internal(post_id)
         
         comment_data = []
@@ -847,6 +835,102 @@ def get_comment_info(request):
             comment_data.append(comment_info)
         
         return Response(comment_data)
+    except Exception:
+        return JsonResponse({'message':'error'})
+
+def get_comment_reply_id_internal(comment_id):
+    try:
+        with connections['default'].cursor() as cursor:
+            sql_query  = "SELECT CR.reply_id FROM COMMENT_REPLY CR "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON CR.description_id = CD.description_id "
+            sql_query += "WHERE comment_id =%s "
+            sql_query += "ORDER BY CD.update_time"
+            cursor.execute(sql_query, [comment_id])
+            rows = cursor.fetchall()
+        all_reply_id =[]
+        for row in rows:
+            all_reply_id.append(row[0])
+        return all_reply_id
+    except Exception:
+        return JsonResponse({'message':'error'})
+
+def get_reply_info_internal(reply_id):
+    try:
+        reply_data = {}
+
+        # card_description
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT CR.user_id, CD.init_time, CD.update_time, CD.description FROM COMMENT_REPLY CR "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON CR.description_id = CD.description_id "
+            sql_query += "WHERE CR.reply_id = %s"
+            cursor.execute(sql_query, [reply_id])
+            row = cursor.fetchall()[0]
+            user_id = row[0]
+            init_time = row[1]
+            update_time = row[2]
+            description = row[3]
+            reply_data['user_id'] = user_id
+            reply_data['init_time'] = init_time
+            reply_data['update_time'] = update_time
+            reply_data['description'] = description
+
+        # user
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT U.user_name, CDM.media_id FROM COMMENT_REPLY CR "
+            sql_query += "JOIN USERS U ON CR.user_id = U.user_id "
+            sql_query += "JOIN USER_PROFILE_PIC UPP ON U.user_id = UPP.user_id "
+            sql_query += "JOIN POST P2 ON UPP.post_id = P2.post_id "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON P2.description_id = CD.description_id "
+            sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+            sql_query += "WHERE CR.reply_id = %s "
+            sql_query += "ORDER BY CDM.media_id DESC"
+            cursor.execute(sql_query, [reply_id])
+            rows = cursor.fetchall()
+            user_name = rows[0][0]
+            profile_pic = []
+            for row in rows:
+                profile_pic.append('/images/storage/'+str(row[1]))
+            reply_data['user_name'] = user_name
+            reply_data['profile_pic'] = profile_pic
+
+        # media
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT CDM.media_id FROM COMMENT_REPLY CR "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON CR.description_id = CD.description_id "
+            sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+            sql_query += "WHERE CR.reply_id = %s "
+            sql_query += "ORDER BY CDM.media_id"
+            cursor.execute(sql_query, [reply_id])
+            rows = cursor.fetchall()
+            media = []
+            for row in rows:
+                media.append('/images/storage/'+str(row[0]))
+            reply_data['media'] = media
+        
+        # reaction count
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT COUNT(*) FROM REPLY_REACT "
+            sql_query += "WHERE reply_id = %s "
+            cursor.execute(sql_query, [reply_id])
+            react_count = cursor.fetchall()[0]
+            reply_data['react_count'] = react_count[0]
+        
+        return reply_data
+    except Exception:
+        return JsonResponse({'message':'error'})
+
+@api_view(['POST'])
+def get_reply_info(request):
+    try:
+        comment_id = request.data.get('comment_id')
+        reply_ids = get_comment_reply_id_internal(comment_id)
+        
+        reply_data = []
+        for reply_id in reply_ids:
+            reply_info = get_reply_info_internal(reply_id)
+            reply_data.append(reply_info)
+        
+        return Response(reply_data)
     except Exception:
         return JsonResponse({'message':'error'})
 

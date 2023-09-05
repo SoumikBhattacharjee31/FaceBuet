@@ -15,7 +15,6 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
-import Replies from "./Replies";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -41,7 +40,7 @@ const mediaStyles = {
   objectFit: "cover",
 };
 
-export default function CommentCard({commentData, open, setCurrentComponent}) {
+export default function ReplyCard({replyData, open, setCurrentComponent}) {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = async () => {
@@ -54,7 +53,7 @@ export default function CommentCard({commentData, open, setCurrentComponent}) {
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img
-              src={commentData.profile_pic[0]}
+              src={replyData.profile_pic[0]}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             ></img>
@@ -65,18 +64,18 @@ export default function CommentCard({commentData, open, setCurrentComponent}) {
             <MoreVertIcon />
           </IconButton>
         }
-        title={commentData.user_name}
-        subheader={commentData.init_time}
+        title={replyData.user_name}
+        subheader={replyData.init_time}
       />
       <CardMedia
         component="img"
-        image={commentData.media[0]}
+        image={replyData.media[0]}
         alt="Paella dish"
         sx={mediaStyles}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">
-          {commentData.description}
+          {replyData.description}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -86,22 +85,7 @@ export default function CommentCard({commentData, open, setCurrentComponent}) {
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-          Replies
-        </ExpandMore>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          {/* <Typography paragraph></Typography> */}
-          <Replies comment_id={commentData.comment_id} open = {open} setCurrentComponent={setCurrentComponent}/>
-        </CardContent>
-      </Collapse>
     </Card>
   );
 }

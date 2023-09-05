@@ -5,9 +5,9 @@ import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import EventCard from "./EventCard";
-import DeleteIcon from '@mui/icons-material/Delete';
-import SendIcon from '@mui/icons-material/Send';
-import Stack from '@mui/material/Stack';
+import DeleteIcon from "@mui/icons-material/Delete";
+import SendIcon from "@mui/icons-material/Send";
+import Stack from "@mui/material/Stack";
 
 const drawerWidth = 240;
 
@@ -57,21 +57,21 @@ export default function Events({ open, setCurrentComponent }) {
       });
   }, []);
   const handleButtonClick = () => {
-    setCurrentComponent("createevent")
+    setCurrentComponent("createevent");
   };
 
   return (
-    <Box sx={{ position: 'relative', display: 'flex' }}>
-      <Button 
-      variant="contained" 
-      endIcon={<SendIcon />}
-      style={{
-        position: 'fixed',
-        bottom: '16px', // Adjust this value as needed
-        right: '430px', // Adjust this value as needed
-        zIndex: 100,
-      }}
-      onClick={handleButtonClick}
+    <Box sx={{ position: "relative", display: "flex" }}>
+      <Button
+        variant="contained"
+        endIcon={<SendIcon />}
+        style={{
+          position: "fixed",
+          bottom: "16px", // Adjust this value as needed
+          right: "430px", // Adjust this value as needed
+          zIndex: 100,
+        }}
+        onClick={handleButtonClick}
       >
         Send
       </Button>
@@ -84,6 +84,33 @@ export default function Events({ open, setCurrentComponent }) {
             <EventCard key={index} postData={postData} />
           ))
         )}
+        <div className="dropdown">
+          <button
+            className="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Dropdown button
+          </button>
+          <ul className="dropdown-menu">
+            <li>
+              <a className="dropdown-item" href="#">
+                Action
+              </a>
+            </li>
+            <li>
+              <a className="dropdown-item" href="#">
+                Another action
+              </a>
+            </li>
+            <li>
+              <a className="dropdown-item" href="#">
+                Something else here
+              </a>
+            </li>
+          </ul>
+        </div>
       </Main>
     </Box>
   );

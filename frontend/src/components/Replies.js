@@ -1,7 +1,7 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import CommentCard from "../components/CommentCard";
+import ReplyCard from "../components/ReplyCard";
 import axios from "axios";
 import Button from "@mui/material/Button";
 
@@ -35,7 +35,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Comments({open, setCurrentComponent, post_id}) {
+export default function Replies({open, setCurrentComponent, comment_id}) {
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const buttonStyle = {
@@ -45,7 +45,7 @@ export default function Comments({open, setCurrentComponent, post_id}) {
 
   React.useEffect(() => {
     const response = axios
-      .post("http://localhost:8000/api/get_comment_info/", { post_id: post_id }, {
+      .post("http://localhost:8000/api/get_reply_info/", { comment_id: comment_id }, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -63,8 +63,8 @@ export default function Comments({open, setCurrentComponent, post_id}) {
         {isLoading ? (
           <></>
         ) : (
-          data.map((postData, index) => (
-            <CommentCard key={index} commentData={postData} open={open} setCurrentComponent={setCurrentComponent} />
+          data.map((replyData, index) => (
+            <ReplyCard key={index} replyData={replyData} open = {open} setCurrentComponent={setCurrentComponent} />
           ))
         )}
       {/* </Main> */}
