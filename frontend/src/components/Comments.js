@@ -1,7 +1,7 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Post from "../components/Post";
+import CommentCard from "../components/CommentCard";
 import axios from "axios";
 import Button from "@mui/material/Button";
 
@@ -35,53 +35,41 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Feed({open, setCurrentComponent}) {
-  const fetched_user_id = localStorage.getItem("user_id");
-  const request_data = {user_id:fetched_user_id};
+export default function Comments({open, setCurrentComponent, post_id}) {
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const buttonStyle = {
     width: '400px',  // Adjust the width as needed
     height: '50px', // Adjust the height as needed
   };
-  const handleButtonClick = () => {
-    setCurrentComponent("createpost")
-  };
+
   React.useEffect(() => {
-    
     const response = axios
-      .post("http://localhost:8000/api/home/", request_data, {
+      .post("http://localhost:8000/api/get_comment_info/", { post_id: post_id }, {
         headers: {
           "Content-Type": "application/json",
         },
       }).then (response => {
         setData(response.data);
+        console.log(response.data)
         setIsLoading(false);
       })
   }, []);
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Main open={open}>
+      {/* <Main open={open}> */}
         <DrawerHeader />
-        <Button
-          color="primary"
-          disabled={false}
-          size="large"
-          variant="outlined"
-          fullWidth
-          onClick={handleButtonClick}
-        >
-          What's on your mind
-        </Button>
         {isLoading ? (
           <></>
         ) : (
           data.map((postData, index) => (
-            <Post key={index} postData={postData} open={open} setCurrentComponent = {setCurrentComponent} />
+            <CommentCard key={index} postData={postData} />
           ))
         )}
-      </Main>
+      {/* </Main> */}
     </Box>
   );
 };
+
+

@@ -36,7 +36,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Profile({open, setCurrentComponent}) {
+export default function Profile({open, setCurrentComponent, profileId}) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);

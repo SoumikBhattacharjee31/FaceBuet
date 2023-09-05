@@ -17,4 +17,5 @@ urlpatterns = [
     path('get_marketplace/', views.get_marketplace, name='get_marketplace'),
     path('set_marketplace/', views.set_marketplace, name='set_marketplace'),
     path('get_user_profile/', views.get_user_profile, name='get_user_profile'),
+    path('get_comment_info/', views.get_comment_info, name='get_comment_info'),
 ]

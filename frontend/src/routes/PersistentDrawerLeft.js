@@ -20,6 +20,7 @@ import SearchPage from "../components/SearchPage";
 
 
 export default function PersistentDrawerLeft() {
+  const [profileId, setProfileId] = React.useState([]);
   const [searchData, setSearchData] = React.useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const toggleSidebar = () => {
@@ -44,7 +45,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "createevent" && < CreateEvent open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "MarketPlace" && < MarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
-      { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId = {profileId} />}
       { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} />}
       <RightSidebar/>
     </Box>

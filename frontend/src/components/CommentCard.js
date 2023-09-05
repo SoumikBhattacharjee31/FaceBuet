@@ -14,7 +14,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import Comments from "./Comments";
+import axios from "axios";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -30,7 +30,7 @@ const ExpandMore = styled((props) => {
 const cardStyles = {
   display: "flex",
   flexDirection: "column",
-  // maxWidth: 1000, // Set the maximum width to make it moderately larger
+  // maxWidth: 500, // Set the maximum width to make it moderately larger
   border: "2px solid #ccc",
   borderRadius: "10px",
 };
@@ -40,10 +40,8 @@ const mediaStyles = {
   objectFit: "cover",
 };
 
-export default function Post({open, setCurrentComponent, postData}) {
-  // const postData = props.postData;
+export default function Post({postData}) {
   const [expanded, setExpanded] = React.useState(false);
-  const [commentInfo, setCommentInfo] = React.useState([]);
 
   const handleExpandClick = async () => {
     setExpanded(!expanded);
@@ -55,7 +53,7 @@ export default function Post({open, setCurrentComponent, postData}) {
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img
-              src={postData.media[0]}
+              src={postData.profile_pic[0]}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             ></img>
@@ -94,14 +92,12 @@ export default function Post({open, setCurrentComponent, postData}) {
           aria-label="show more"
         >
           <ExpandMoreIcon />
-          Comments
+          Replies
         </ExpandMore>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {/* <Typography paragraph> */}
-            <Comments post_id={postData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/>
-          {/* </Typography> */}
+          <Typography paragraph></Typography>
         </CardContent>
       </Collapse>
     </Card>

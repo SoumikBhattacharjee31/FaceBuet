@@ -102,6 +102,7 @@ def get_post_info_internal(post_id):
             init_time = row[1]
             update_time = row[2]
             description = row[3]
+            post_data['post_id'] = post_id
             post_data['user_id'] = user_id
             post_data['init_time'] = init_time
             post_data['update_time'] = update_time
@@ -183,6 +184,97 @@ def get_user_post_id_internal(user_id):
     except Exception as e:
         print(f"An exception occurred: {e}")
         return ({'message':'error'})
+
+def get_post_comment_id_internal(post_id):
+    try:
+        with connections['default'].cursor() as cursor:
+            sql_query  = "SELECT PC.comment_id FROM POST_COMMENT PC "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON PC.description_id = CD.description_id "
+            sql_query += "WHERE post_id =%s "
+            sql_query += "ORDER BY CD.update_time"
+            cursor.execute(sql_query, [post_id])
+            rows = cursor.fetchall()
+        all_comment_id =[]
+        for row in rows:
+            all_comment_id.append(row[0])
+        return all_comment_id
+    except Exception:
+        return JsonResponse({'message':'error'})
+
+def get_comment_info_internal(comment_id):
+    try:
+        comment_data = {}
+
+        # card_description
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT PC.user_id, CD.init_time, CD.update_time, CD.description FROM POST_COMMENT PC "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON PC.description_id = CD.description_id "
+            sql_query += "WHERE PC.comment_id = %s"
+            cursor.execute(sql_query, [comment_id])
+            row = cursor.fetchall()[0]
+            user_id = row[0]
+            init_time = row[1]
+            update_time = row[2]
+            description = row[3]
+            comment_data['user_id'] = user_id
+            comment_data['init_time'] = init_time
+            comment_data['update_time'] = update_time
+            comment_data['description'] = description
+
+        # user
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT U.user_name, CDM.media_id FROM POST_COMMENT PC "
+            sql_query += "JOIN USERS U ON PC.user_id = U.user_id "
+            sql_query += "JOIN USER_PROFILE_PIC UPP ON U.user_id = UPP.user_id "
+            sql_query += "JOIN POST P2 ON UPP.post_id = P2.post_id "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON P2.description_id = CD.description_id "
+            sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+            sql_query += "WHERE PC.comment_id = %s "
+            sql_query += "ORDER BY CDM.media_id DESC"
+            cursor.execute(sql_query, [comment_id])
+            rows = cursor.fetchall()
+            user_name = rows[0][0]
+            profile_pic = []
+            for row in rows:
+                profile_pic.append('/images/storage/'+str(row[1]))
+            print('helloworld')
+            comment_data['user_name'] = user_name
+            comment_data['profile_pic'] = profile_pic
+
+        # media
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT CDM.media_id FROM POST_COMMENT PC "
+            sql_query += "JOIN CARD_DESCRIPTION CD ON PC.description_id = CD.description_id "
+            sql_query += "JOIN CARD_DESCRIPTION_MEDIA CDM ON CD.description_id = CDM.description_id "
+            sql_query += "WHERE PC.comment_id = %s "
+            sql_query += "ORDER BY CDM.media_id"
+            cursor.execute(sql_query, [comment_id])
+            rows = cursor.fetchall()
+            media = []
+            for row in rows:
+                media.append('/images/storage/'+str(row[0]))
+            comment_data['media'] = media
+        
+        # reaction count
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT COUNT(*) FROM COMMENT_REACT "
+            sql_query += "WHERE comment_id = %s "
+            cursor.execute(sql_query, [comment_id])
+            react_count = cursor.fetchall()[0]
+            comment_data['react_count'] = react_count[0]
+        
+        # reply count
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT COUNT(*) FROM POST_COMMENT "
+            sql_query += "WHERE comment_id = %s"
+            cursor.execute(sql_query, [comment_id])
+            reply_count = cursor.fetchall()[0]
+            comment_data['reply_count'] = reply_count[0]
+        
+        
+        return comment_data
+    except Exception:
+        return JsonResponse({'message':'error'})
 
 @api_view(['POST'])
 def homePage(request):
@@ -660,7 +752,6 @@ def get_marketplace(request):
 
     return Response(posts)
 
-
 @api_view(['POST'])
 def set_marketplace(request):
     user_id = request.POST.get('user_id')
@@ -683,7 +774,6 @@ def set_marketplace(request):
         marketplace_id = marketplace_id_obj.getvalue()[0]
     
     return JsonResponse({'message': 'Image uploaded successfully'})
-
 
 @api_view(['POST'])
 def get_user_profile(request):
@@ -744,6 +834,20 @@ def get_user_profile(request):
     except Exception as e:
         return JsonResponse({'message': 'error'})
 
-
+@api_view(['POST'])
+def get_comment_info(request):
+    try:
+        post_id = request.data.get('post_id')
+        print(post_id)
+        comment_ids = get_post_comment_id_internal(post_id)
+        
+        comment_data = []
+        for comment_id in comment_ids:
+            comment_info = get_comment_info_internal(comment_id)
+            comment_data.append(comment_info)
+        
+        return Response(comment_data)
+    except Exception:
+        return JsonResponse({'message':'error'})
 
 
