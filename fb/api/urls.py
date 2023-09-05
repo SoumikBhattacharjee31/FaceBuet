@@ -19,4 +19,6 @@ urlpatterns = [
     path('get_user_profile/', views.get_user_profile, name='get_user_profile'),
     path('get_comment_info/', views.get_comment_info, name='get_comment_info'),
     path('get_reply_info/', views.get_reply_info, name='get_reply_info'),
+    path('set_post_comment/', views.set_post_comment, name='set_post_comment'),
+    path('set_comment_reply/', views.set_comment_reply, name='set_comment_reply'),
 ]
