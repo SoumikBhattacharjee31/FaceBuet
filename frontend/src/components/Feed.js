@@ -35,7 +35,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Feed({open, setCurrentComponent}) {
+export default function Feed({open, setCurrentComponent, setUpdatePostId}) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);
@@ -78,7 +78,7 @@ export default function Feed({open, setCurrentComponent}) {
           <></>
         ) : (
           data.map((postData, index) => (
-            <Post key={index} postData={postData} open={open} setCurrentComponent = {setCurrentComponent} />
+            <Post key={index} postData={postData} open={open} setCurrentComponent = {setCurrentComponent} setUpdatePostId={setUpdatePostId}/>
           ))
         )}
       </Main>

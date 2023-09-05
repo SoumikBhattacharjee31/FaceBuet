@@ -15,6 +15,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Comments from "./Comments";
+import PostMenu from "./PostMenu";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -40,7 +41,7 @@ const mediaStyles = {
   objectFit: "cover",
 };
 
-export default function Post({open, setCurrentComponent, postData}) {
+export default function Post({open, setCurrentComponent, postData, setUpdatePostId}) {
   // const postData = props.postData;
   const [expanded, setExpanded] = React.useState(false);
   const [commentInfo, setCommentInfo] = React.useState([]);
@@ -62,9 +63,10 @@ export default function Post({open, setCurrentComponent, postData}) {
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          // <IconButton aria-label="settings">
+          //   <MoreVertIcon />
+          // </IconButton>
+          <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
         title={postData.user_name}
         subheader={postData.init_time}

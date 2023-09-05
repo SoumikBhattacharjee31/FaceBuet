@@ -21,4 +21,6 @@ urlpatterns = [
     path('get_reply_info/', views.get_reply_info, name='get_reply_info'),
     path('set_post_comment/', views.set_post_comment, name='set_post_comment'),
     path('set_comment_reply/', views.set_comment_reply, name='set_comment_reply'),
+    path('update_user_post/', views.update_user_post, name='update_user_post'),
+    path('delete_user_post/', views.delete_user_post, name='delete_user_post'),
 ]

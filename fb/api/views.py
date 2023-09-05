@@ -5,6 +5,26 @@ from django.db import connections, DatabaseError, IntegrityError
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.db.utils import DataError
+import os
+from django.conf import settings
+from django.shortcuts import render
+from django.http import HttpResponse
+# from .utils import delete_file
+image_path = '/images/storage/'
+absolute_image_path = 'G:/Website_Project/From_Git/fbproject/frontend/public/images/storage'
+
+def delete_file(file_path):
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"Error deleting file: {str(e)}")
+        return False
+
+
 
 def set_card_description_internal(description = ""):
     with connections['default'].cursor() as cursor:
@@ -136,7 +156,7 @@ def get_post_info_internal(post_id):
             rows = cursor.fetchall()
             media = []
             for row in rows:
-                media.append('/images/storage/'+str(row[0]))
+                media.append(image_path+str(row[0]))
             post_data['media'] = media
         
         # reaction count
@@ -237,7 +257,7 @@ def get_comment_info_internal(comment_id):
             user_name = rows[0][0]
             profile_pic = []
             for row in rows:
-                profile_pic.append('/images/storage/'+str(row[1]))
+                profile_pic.append(image_path+str(row[1]))
             print('helloworld')
             comment_data['user_name'] = user_name
             comment_data['profile_pic'] = profile_pic
@@ -253,7 +273,7 @@ def get_comment_info_internal(comment_id):
             rows = cursor.fetchall()
             media = []
             for row in rows:
-                media.append('/images/storage/'+str(row[0]))
+                media.append(image_path+str(row[0]))
             comment_data['media'] = media
         
         # reaction count
@@ -328,7 +348,7 @@ def get_reply_info_internal(reply_id):
             user_name = rows[0][0]
             profile_pic = []
             for row in rows:
-                profile_pic.append('/images/storage/'+str(row[1]))
+                profile_pic.append(image_path+str(row[1]))
             reply_data['user_name'] = user_name
             reply_data['profile_pic'] = profile_pic
 
@@ -343,7 +363,7 @@ def get_reply_info_internal(reply_id):
             rows = cursor.fetchall()
             media = []
             for row in rows:
-                media.append('/images/storage/'+str(row[0]))
+                media.append(image_path+str(row[0]))
             reply_data['media'] = media
         
         # reaction count
@@ -460,7 +480,7 @@ def get_groups(request):
             media = []
             for row2 in rows2:
                 
-                media.append('/images/storage/'+str(row2[0]))
+                media.append(image_path+str(row2[0]))
                 
             group_data = {}
             group_data['group_id'] = group_id
@@ -503,7 +523,7 @@ def get_friend_list(request):
                 rows2 = cursor.fetchall()
                 media = []
                 for row2 in rows2:
-                    media.append('/images/storage/'+str(row2[0]))
+                    media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
                 temp_obj['user_id'] = user_id
@@ -543,7 +563,7 @@ def get_friend_req_list(request):
                 rows2 = cursor.fetchall()
                 media = []
                 for row2 in rows2:
-                    media.append('/images/storage/'+str(row2[0]))
+                    media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
                 temp_obj['user_id'] = user_id
@@ -636,7 +656,7 @@ def get_chat_friend_list(request):
                 rows2 = cursor.fetchall()
                 media = []
                 for row2 in rows2:
-                    media.append('/images/storage/'+str(row2[0]))
+                    media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
                 temp_obj['user_id'] = user_id
@@ -689,7 +709,7 @@ def get_events(request):
             media = []
             for row2 in rows2:
                 
-                media.append('/images/storage/'+str(row2[0]))
+                media.append(image_path+str(row2[0]))
                 
             group_data = {}
             group_data['event_id'] = event_id
@@ -759,7 +779,7 @@ def search_users(request):
             sql_query += "WHERE U.user_id = %s "
             cursor.execute(sql_query, [user_id])
             medias = cursor.fetchall()
-            media = ['/images/storage/'+str(media_id[0]) for media_id in medias]
+            media = [image_path+str(media_id[0]) for media_id in medias]
             temp_obj = {}
             temp_obj['profile_pic'] = media
             temp_obj['user_name'] = user_name
@@ -798,7 +818,7 @@ def get_marketplace(request):
             rows2 = cursor.fetchall()
             profile_pic = []
             for row2 in rows2:
-                profile_pic.append('/images/storage/'+str(row2[0]))
+                profile_pic.append(image_path+str(row2[0]))
 
         with connections['default'].cursor() as cursor:
             sql_query  = 'SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM '
@@ -809,7 +829,7 @@ def get_marketplace(request):
             rows2 = cursor.fetchall()
             media = []
             for row2 in rows2:
-                media.append('/images/storage/'+str(row2[0]))
+                media.append(image_path+str(row2[0]))
         
         temp_obj = {}
         temp_obj['product_name'] = product_name
@@ -865,7 +885,7 @@ def get_user_profile(request):
             profile_pics = cursor.fetchall()
             profile_pic = []
             for row in profile_pics:
-                profile_pic.append('/images/storage/'+str(row[0]))
+                profile_pic.append(image_path+str(row[0]))
             profile_data['profile_pic'] = profile_pic
         
         # cover_photo
@@ -881,7 +901,7 @@ def get_user_profile(request):
             cover_photos = cursor.fetchall()
             cover_photo = []
             for row in cover_photos:
-                cover_photo.append('/images/storage/'+str(row[0]))
+                cover_photo.append(image_path+str(row[0]))
             profile_data['cover_photo'] = cover_photo
         # user_data
         with connections['default'].cursor() as cursor:
@@ -973,9 +993,70 @@ def set_comment_reply(request):
     
     return JsonResponse({'message': 'Image uploaded successfully'})
 
+@api_view(['POST'])
+def update_user_post(request):
+    try:
+        description = request.POST.get('description')
+        uploaded_image = request.FILES['media']
+        post_id = request.POST.get('post_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM JOIN POST P ON CDM.description_id = P.description_id WHERE P.post_id = %s"
+            cursor.execute(sql_query,[post_id])
+            medias = cursor.fetchall()
+            media = [row[0] for row in medias]
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CD.description_id FROM CARD_DESCRIPTION CD JOIN POST P ON CD.description_id = P.description_id WHERE P.post_id = %s"
+            cursor.execute(sql_query,[post_id])
+            description_ids=cursor.fetchall()
+            description_id = description_ids[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query = "UPDATE CARD_DESCRIPTION SET description=%s, update_time=SYSDATE WHERE description_id = %s"
+            cursor.execute(sql_query,[description,description_id])
+            
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT M.media_id FROM MEDIA M "
+            sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON M.media_id = CDM.media_id "
+            sql_query+= "JOIN POST P ON CDM.description_id = P.description_id "
+            sql_query+= "WHERE P.post_id = %s "
+            cursor.execute(sql_query, [post_id])
+        media_id = set_media_internal(uploaded_image)
+        set_card_description_media_internal(description_id, media_id)
+        for media_id in media:
+            with connections['default'].cursor() as cursor:
+                sql_query = "DELETE FROM MEDIA WHERE media_id = %s"
+                cursor.execute(sql_query, [media_id])
+            delete_file(absolute_image_path+str(media_id))
 
+        return JsonResponse({'message': 'Image uploaded successfully'})
+    except IntegrityError:
+        return Response({"error": "IntegrityError: User already exists"}, status=400)
+    except DataError:
+        return Response({"error": "DataError: Invalid data format"}, status=400)
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
-
+@api_view(['POST'])
+def delete_user_post(request):
+    post_id = request.data.get('post_id')
+    with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM JOIN POST P ON CDM.description_id = P.description_id WHERE P.post_id = %s"
+            cursor.execute(sql_query,[post_id])
+            medias = cursor.fetchall()
+            media = [row[0] for row in medias]
+    with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CD.description_id FROM CARD_DESCRIPTION CD JOIN POST P ON CD.description_id = P.description_id WHERE P.post_id = %s"
+            cursor.execute(sql_query,[post_id])
+            description_ids=cursor.fetchall()
+            description_id = description_ids[0][0]
+    for media_id in media:
+            with connections['default'].cursor() as cursor:
+                sql_query = "DELETE FROM MEDIA WHERE media_id = %s"
+                cursor.execute(sql_query, [media_id])
+            delete_file(absolute_image_path+str(media_id))
+    with  connections['default'].cursor() as cursor:
+        sql_query = "DELETE FROM CARD_DESCRIPTION WHERE description_id = %s"
+        cursor.execute(sql_query, [description_id])
+    return JsonResponse({"message":"success"})
 
 
 

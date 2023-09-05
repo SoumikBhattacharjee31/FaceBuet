@@ -17,11 +17,13 @@ import MarketPlace from "../components/MarketPlace";
 import CreateMarketPlace from "../components/CreateMarketPlace";
 import Profile from "../components/Profile";
 import SearchPage from "../components/SearchPage";
+import UpdatePost from "../components/UpdatePost";
 
 
 export default function PersistentDrawerLeft() {
   const [profileId, setProfileId] = React.useState([]);
   const [searchData, setSearchData] = React.useState([]);
+  const [updatePostId, setUpdatePostId] = React.useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -32,7 +34,7 @@ export default function PersistentDrawerLeft() {
   return (
     <Box sx={{ display: "flex" }}>
       <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} setCurrentComponent = {setCurrentComponent} setSearchData = {setSearchData} />
-      { currentComponent.toLowerCase() === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent.toLowerCase() === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} setUpdatePostId={setUpdatePostId}/>}
       { currentComponent === "createpost" && < CreatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Groups" && < Groups open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Pages" && < Pages open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
@@ -47,6 +49,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId = {profileId} />}
       { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} />}
+      { currentComponent === "editpost" && < UpdatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} post_id = {updatePostId} />}
       <RightSidebar/>
     </Box>
   );
