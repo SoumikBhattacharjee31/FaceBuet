@@ -49,7 +49,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "MarketPlace" && < MarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId = {profileId} />}
-      { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} />}
+      { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} setProfileId={setProfileId} />}
       { currentComponent === "editpost" && < UpdatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} post_id = {updatePostId} />}
       { currentComponent === "Chat" && < Chat open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} friend_id = {profileId} />}
       <RightSidebar/>

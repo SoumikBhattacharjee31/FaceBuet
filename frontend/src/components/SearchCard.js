@@ -39,17 +39,22 @@ const mediaStyles = {
   objectFit: "cover",
 };
 
-export default function Post(props) {
-  const postData = props.postData;
+export default function SearchCard({postData, setCurrentComponent, setProfileId}) {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
+  const gotoProfile = ()=>{
+    setProfileId(postData.user_id)
+    setCurrentComponent("Profile")
+  }
+
   return (
     <Card sx={cardStyles}>
       <CardHeader
+      onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img

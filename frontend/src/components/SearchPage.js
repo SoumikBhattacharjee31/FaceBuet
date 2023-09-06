@@ -36,7 +36,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function SearchPage({open, setCurrentComponent, searchData}) {
+export default function SearchPage({open, setCurrentComponent, searchData, setProfileId}) {
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -46,7 +46,7 @@ export default function SearchPage({open, setCurrentComponent, searchData}) {
           <></>
         ) : ( */}
           {searchData.map((postData, index) => (
-            <SearchCard key={index} postData={postData} />
+            <SearchCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setProfileId={setProfileId} />
           ))}
         {/* )} */}
       </Main>

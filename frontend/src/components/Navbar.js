@@ -151,7 +151,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
         },
       }
     );
-
+    console.log(setSearchData)
     setSearchData(response.data);
     }
     else
