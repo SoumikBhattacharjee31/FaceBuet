@@ -1,12 +1,12 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import SendIcon from "@mui/icons-material/Send";
-import TextField from "@mui/material/TextField";
-import CommentCard from "../components/CommentCard";
+import ChatCard from "../components/ChatCard";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import SendIcon from "@mui/icons-material/Send";
 
 const drawerWidth = 240;
 
@@ -38,28 +38,27 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Comments({ open, setCurrentComponent, post_id }) {
+export default function Chat({open, setCurrentComponent, friend_id, setUpdatePostId}) {
+  console.log(friend_id)
+  const fetched_user_id = localStorage.getItem("user_id");
+  const request_data = {user_id:fetched_user_id, friend_id:friend_id};
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [description, setDescription] = React.useState("");
   const [media, setMedia] = React.useState(null);
-
+ 
   React.useEffect(() => {
+    
     const response = axios
-      .post(
-        "http://localhost:8000/api/get_comment_info/",
-        { post_id: post_id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
+      .post("http://localhost:8000/api/get_messages/", request_data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then (response => {
         setData(response.data);
-        console.log(response.data);
         setIsLoading(false);
-      });
+        console.log(response.data)
+      })
   }, []);
 
   const handleInputChange = (event) => {
@@ -79,11 +78,11 @@ export default function Comments({ open, setCurrentComponent, post_id }) {
       const request_data = new FormData();
       request_data.append("description", description);
       request_data.append("user_id", user_id);
-      request_data.append("post_id", post_id);
+      request_data.append("friend_id", friend_id);
       request_data.append("media", media);
       // request_data.append("cover_photo", coverPhoto);
       const response = await axios
-        .post("http://localhost:8000/api/set_post_comment/", request_data, {
+        .post("http://localhost:8000/api/set_message/", request_data, {
           headers: {
             "Content-Type": "multipart/form-data",
             // "X-CSRFToken": csrfToken,
@@ -96,9 +95,15 @@ export default function Comments({ open, setCurrentComponent, post_id }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* <Main open={open}> */}
-      <DrawerHeader />
-      <Grid >
+      <Main open={open}>
+        <DrawerHeader />
+        {isLoading ? (
+          <></>
+        ) : (
+          data.map((messageData, index) => (
+            <ChatCard key={index} messageData={messageData} open={open} setCurrentComponent = {setCurrentComponent} setUpdatePostId={setUpdatePostId}/>
+          ))
+        )}
         <Grid  container direction="row" justifyContent="center" alignItems="stretch">
           <Grid item xs={12}>
             <TextField
@@ -136,22 +141,7 @@ export default function Comments({ open, setCurrentComponent, post_id }) {
                   </div>
                 )}
         </Grid>
-        <Grid item xs={12}>
-          {isLoading ? (
-            <></>
-          ) : (
-            data.map((postData, index) => (
-              <CommentCard
-                key={index}
-                commentData={postData}
-                open={open}
-                setCurrentComponent={setCurrentComponent}
-              />
-            ))
-          )}
-        </Grid>
-      </Grid>
-      {/* </Main> */}
+      </Main>
     </Box>
   );
-}
+};

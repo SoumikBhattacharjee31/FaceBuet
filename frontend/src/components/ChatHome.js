@@ -34,7 +34,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function ChatHome({open, setCurrentComponent}) {
+export default function ChatHome({open, setCurrentComponent, setProfileId}) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);
@@ -60,7 +60,7 @@ export default function ChatHome({open, setCurrentComponent}) {
           <></>
         ) : (
           data.map((postData, index) => (
-            <ChatHomeCard key={index} postData={postData} />
+            <ChatHomeCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setProfileId={setProfileId} />
           ))
         )}
       </Main>

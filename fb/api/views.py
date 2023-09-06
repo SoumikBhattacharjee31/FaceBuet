@@ -35,7 +35,7 @@ def set_card_description_internal(description = ""):
     return description_id
 
 def set_media_internal(uploaded_image, type = 'image'):
-    fs = FileSystemStorage(location='G:/Website_Project/From_Git/fbproject/frontend/public/images/storage')
+    fs = FileSystemStorage(location=absolute_image_path)
     with connections['default'].cursor() as cursor:
         media_id_obj = cursor.var(int)
         sql_query = "INSERT INTO MEDIA (media_type) VALUES (%s) RETURNING media_id INTO %s"
@@ -630,7 +630,6 @@ def get_chat_friend_list(request):
             sql_query += ") "
             cursor.execute(sql_query, [user_id, user_id])
             rows = cursor.fetchall()
-        print(2)
         for row in rows:
             friend_id = row[0]
             user_name = row[1]
@@ -659,7 +658,7 @@ def get_chat_friend_list(request):
                     media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
-                temp_obj['user_id'] = user_id
+                temp_obj['user_id'] = friend_id
                 temp_obj['user_name'] = user_name
                 temp_obj['media'] = media
                 temp_obj['last_message'] = last_message
@@ -1058,8 +1057,94 @@ def delete_user_post(request):
         cursor.execute(sql_query, [description_id])
     return JsonResponse({"message":"success"})
 
+def get_user_name_and_profile_pic_from_user_id_internal(user_id):
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT user_name FROM USERS "
+        sql_query+= "WHERE user_id = %s "
+        cursor.execute(sql_query,[user_id])
+        user_name = cursor.fetchall()[0][0]
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+        sql_query+= "JOIN POST P ON UPP.post_id = P.post_id "
+        sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON P.description_id = CDM.description_id "
+        sql_query+= "WHERE UPP.user_id = %s "
+        cursor.execute(sql_query,[user_id])
+        medias = cursor.fetchall()
+        media = [image_path+str(row[0]) for row in medias]
+    data = {}
+    data['user_name'] = user_name
+    data['profile_pic'] = media
+    return data
 
+def get_media_from_description_id_internal(description_id):
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM "
+        sql_query+= "WHERE CDM.description_id = %s "
+        cursor.execute(sql_query,[description_id])
+        medias = cursor.fetchall()
+        media = [image_path+str(row[0]) for row in medias]
+    return media
+    
 
+@api_view(['POST'])
+def get_messages(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT M.sender_id, M.receiver_id, CD.description, CD.init_time, CD.description_id FROM MESSAGE M "
+        sql_query+= "JOIN CARD_DESCRIPTION CD ON M.description_id = CD.description_id "
+        sql_query+= "WHERE M.sender_id = %s AND M.receiver_id = %s "
+        sql_query+= "OR M.sender_id = %s AND M.receiver_id = %s "
+        sql_query+= "ORDER BY CD.init_time DESC "
+        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+        results = cursor.fetchall()
+    message_info = []
+    for result in results:
+        sender_id = result[0]
+        receiver_id = result[1]
+        description = result[2]
+        init_time = result[3]
+        description_id = result[4]
+        sender_data = get_user_name_and_profile_pic_from_user_id_internal(sender_id)
+        receiver_data = get_user_name_and_profile_pic_from_user_id_internal(receiver_id)
+        media = get_media_from_description_id_internal(description_id)
+        sender_name = sender_data['user_name']
+        receiver_name = receiver_data['user_name']
+        sender_profile_pic = sender_data['profile_pic']
+        receiver_profile_pic = receiver_data['profile_pic']
+        message_data = {}
+        message_data['sender_id'] = sender_id
+        message_data['receiver_id'] = receiver_id
+        message_data['description'] = description
+        message_data['init_time'] = init_time
+        message_data['sender_name'] = sender_name
+        message_data['receiver_name'] = receiver_name
+        message_data['sender_profile_pic'] = sender_profile_pic
+        message_data['receiver_profile_pic'] = receiver_profile_pic
+        message_data['media'] = media
+        message_info.append(message_data)
+    print(message_info)
+    return Response(message_info)
+        
+@api_view(['POST'])
+def set_message(request):
+    user_id = request.POST.get('user_id')
+    friend_id = request.POST.get('friend_id')
+    description = request.POST.get('description')
+    uploaded_image = request.FILES['media']
+    
+    media_id = set_media_internal(uploaded_image)
+    description_id = set_card_description_internal(description)
+    set_card_description_media_internal(description_id, media_id)
+
+    with connections['default'].cursor() as cursor:
+        message_id_obj = cursor.var(int)
+        sql_query = "INSERT INTO MESSAGE (sender_id, receiver_id, description_id) VALUES (%s, %s, %s) RETURNING message_id INTO %s"
+        cursor.execute(sql_query, [user_id, friend_id, description_id, message_id_obj])
+        message_id = message_id_obj.getvalue()[0]
+
+    
+    return JsonResponse({'message': 'Image uploaded successfully'})
 
 
 

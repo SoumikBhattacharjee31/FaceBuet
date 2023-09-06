@@ -39,7 +39,7 @@ export default function ProfileCard({postData}) {
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}
-            <img src={postData.profile_pic[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
+            {postData.profile_pic && <img src={postData.profile_pic[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>}
           </Avatar>
         }
         action={

@@ -14,6 +14,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Comments from "./Comments";
+import PostMenu from "./PostMenu";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -39,46 +41,45 @@ const mediaStyles = {
   objectFit: "cover",
 };
 
-export default function ChatHomeCard({postData, setCurrentComponent, setProfileId}) {
+export default function ChatCard({open, setCurrentComponent, messageData, setUpdatePostId}) {
+  // const messageData = props.messageData;
   const [expanded, setExpanded] = React.useState(false);
+  const [commentInfo, setCommentInfo] = React.useState([]);
 
-  const handleExpandClick = () => {
+  const handleExpandClick = async () => {
     setExpanded(!expanded);
   };
-
-  const gotoProfile = ()=>{
-    setProfileId(postData.user_id)
-    setCurrentComponent("Profile")
-  }
-  const gotoChat = ()=>{
-    setProfileId(postData.user_id)
-    setCurrentComponent("Chat")
-  }
 
   return (
     <Card sx={cardStyles}>
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
-              src={postData.media[0]}
+            {messageData.profile_pic && <img
+              src={messageData.profile_pic[0]}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            ></img>}
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          // <IconButton aria-label="settings">
+          //   <MoreVertIcon />
+          // </IconButton>
+          <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={messageData.post_id}/>
         }
-        title={postData.user_name}
-        subheader={postData.last_message_time}
-        onClick={gotoProfile}
+        title={messageData.sender_name}
+        subheader={messageData.init_time}
       />
-      <CardContent onClick={gotoChat}>
+      <CardMedia
+        component="img"
+        image={messageData.media[0]}
+        alt="Paella dish"
+        sx={mediaStyles}
+      />
+      <CardContent>
         <Typography variant="body2" color="text.secondary">
-          {postData.last_message}
+          {messageData.description}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -88,7 +89,23 @@ export default function ChatHomeCard({postData, setCurrentComponent, setProfileI
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
+        <ExpandMore
+          expand={expanded}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+        >
+          <ExpandMoreIcon />
+          Comments
+        </ExpandMore>
       </CardActions>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent>
+          {/* <Typography paragraph> */}
+            {/* <Comments post_id={messageData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/> */}
+          {/* </Typography> */}
+        </CardContent>
+      </Collapse>
     </Card>
   );
 }
