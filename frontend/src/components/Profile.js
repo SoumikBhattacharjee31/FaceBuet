@@ -37,7 +37,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function Profile({open, setCurrentComponent, profileId}) {
-  const fetched_user_id = localStorage.getItem("user_id");
+  const fetched_user_id = profileId
   const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);
   const [profilePosts, setProfilePosts] = React.useState([]);

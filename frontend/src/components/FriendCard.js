@@ -26,17 +26,22 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function GroupCard(props) {
-  const postData =  props.postData;
+export default function FriendCard({postData, setCurrentComponent, setProfileId}) {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
+  const gotoProfile = ()=>{
+    setProfileId(postData.user_id)
+    setCurrentComponent("Profile")
+  }
+
   return (
     <Card sx={{Width: 500, border: "2px solid #ccc", borderRadius: "10px" }}>
       <CardHeader
+      onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}

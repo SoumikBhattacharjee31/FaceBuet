@@ -54,7 +54,7 @@ export default function ProfileCard({postData}) {
       <CardMedia
         component="img"
         height="194"
-        image={postData.cover_photo[0]}
+        image={postData.cover_photo?postData.cover_photo[0]:""}
         alt="Paella dish"
       />
       <CardContent>

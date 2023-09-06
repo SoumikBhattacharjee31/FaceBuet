@@ -526,7 +526,7 @@ def get_friend_list(request):
                     media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
-                temp_obj['user_id'] = user_id
+                temp_obj['user_id'] = friend_id
                 temp_obj['user_name'] = user_name
                 temp_obj['media'] = media
                 profile_data.append(temp_obj)
@@ -566,7 +566,7 @@ def get_friend_req_list(request):
                     media.append(image_path+str(row2[0]))
                 # print(media)
                 temp_obj = {}
-                temp_obj['user_id'] = user_id
+                temp_obj['user_id'] = friend_id
                 temp_obj['user_name'] = user_name
                 temp_obj['media'] = media
                 profile_data.append(temp_obj)

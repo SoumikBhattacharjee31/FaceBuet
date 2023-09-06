@@ -108,7 +108,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, setSearchData }) {
+export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, setSearchData, setProfileId }) {
 
   const theme = useTheme();
   // const [data, setData] = React.useState([]);
@@ -133,6 +133,14 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
   //       })
   //   // }, []);
   // }
+
+  const onRightSidebarButtonClick = async(text)=>{
+    if(text==="Profile"){
+      const user_id = localStorage.getItem('user_id')
+      setProfileId(user_id)
+    }
+    setCurrentComponent(text)
+  }
 
   const handleSearchChange = async (event) => {
     // setCurrentComponent('search')
@@ -294,7 +302,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
                 <Link
                   // to={url}
                   style={{ textDecoration: "none", color: "inherit" }}
-                  onClick={() => setCurrentComponent(text)}
+                  onClick={() => onRightSidebarButtonClick(text)}
                 >
                   {" "}
                   {/* Use the URL associated with each text */}
