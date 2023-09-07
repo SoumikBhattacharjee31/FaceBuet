@@ -35,7 +35,6 @@ export default function EventCard({postData, setCurrentComponent, setGroupId}) {
 
   const gotoGroup = ()=>{
     setGroupId(postData.group_id)
-    console.log(postData.group_id)
     setCurrentComponent("GroupPage")
   }
 
