@@ -81,6 +81,7 @@ def set_post_internal(user_id, description_id, type = 'user_post'):
         return post_id
     except Exception as e:
         print("Error Setting Post: "+str(e))
+        
 
 def set_card_description_with_multiple_media_internal(uploaded_images,description=""):
     try:
@@ -92,6 +93,7 @@ def set_card_description_with_multiple_media_internal(uploaded_images,descriptio
             return description_id
     except Exception as e:
         print("Error Setting Card Description With Media: "+str(e))
+        
 
 def set_user_internal(user_name, password, mobile_number, birth_date, email):
     try:
@@ -126,6 +128,7 @@ def set_profile_pic_internal(uploaded_image, user_id):
         return JsonResponse({'message': 'Image uploaded successfully'})
     except Exception as e:
         print("Error Setting Profile Pic: "+str(e))
+        
 
 def set_cover_photo_internal(uploaded_image, user_id):
     try:
@@ -149,30 +152,6 @@ def set_cover_photo_internal(uploaded_image, user_id):
     except Exception as e:
         print("Error Setting Cover Photo: "+str(e))
         return ("error")
-
-def get_user_name_and_single_profile_pic_from_user_id_internal(user_id):
-    try:
-        with connections['default'].cursor() as cursor:
-            sql_query = "SELECT user_name FROM USERS "
-            sql_query+= "WHERE user_id = %s "
-            cursor.execute(sql_query,[user_id])
-            user_name = cursor.fetchall()[0][0]
-        with connections['default'].cursor() as cursor:
-            sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
-            sql_query+= "JOIN POST P ON UPP.post_id = P.post_id "
-            sql_query+= "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
-            sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON P.description_id = CDM.description_id "
-            sql_query+= "WHERE UPP.user_id = %s "
-            sql_query+= "ORDER BY CD.init_time DESC "
-            cursor.execute(sql_query,[user_id])
-            medias = cursor.fetchall()
-            media = image_path+str(medias[0][0])
-        data = {}
-        data['user_name'] = user_name
-        data['profile_pic'] = media
-        return data
-    except Exception as e:
-        print ("Error Getting User Name And Profile Pic From User ID: "+str(e))
 
 def get_post_info_internal(post_id):
     try:
@@ -241,20 +220,21 @@ def get_post_info_internal(post_id):
         return  ({'message':'error'})
 
 def get_user_post_id_internal(user_id):
+    if not user_id:
+        print("Invalid Input")
+        return
     try:
         with connections['default'].cursor() as cursor:
             sql_query  = "SELECT P.post_id FROM POST P "
             sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
             sql_query += "WHERE P.user_id =%s "
-            sql_query += "ORDER BY CD.update_time"
+            sql_query += "ORDER BY CD.init_time DESC"
             cursor.execute(sql_query, [user_id])
             rows = cursor.fetchall()
-        all_post_id =[]
-        for row in rows:
-            all_post_id.append(row[0])
+        all_post_id =[row[0] for row in rows]
         return all_post_id
     except Exception as e:
-        print(f"An exception occurred: {e}")
+        print(f"Error Getting User Post ID: {e}")
         return ({'message':'error'})
 
 def get_post_comment_id_internal(post_id):
@@ -273,6 +253,7 @@ def get_post_comment_id_internal(post_id):
         return all_comment_id
     except Exception as e:
         print("Error Getting Post Comment ID: "+str(e))
+        
 
 def get_comment_info_internal(comment_id):
     try:
@@ -330,7 +311,7 @@ def get_comment_info_internal(comment_id):
         return comment_data
     except Exception as e:
         print("Error Getting Comment Info: "+str(e))
-
+        
 
 def get_comment_reply_id_internal(comment_id):
     try:
@@ -397,7 +378,8 @@ def get_reply_info_internal(reply_id):
         return reply_data
     except Exception as e:
         print("Error Getting Reply Info: "+str(e))
-   
+        
+
 @api_view(['POST'])
 def homePage(request):
     try:
@@ -473,6 +455,160 @@ def set_user_post(request):
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
+
+def get_user_as_member_group_id_internal(user_id):
+    try:
+        if not user_id:
+            print("Invalid Input")
+            return
+        with connections['default'].cursor() as cursor:
+            sql_query = 'SELECT GM.group_id FROM GROUP_MEMBERS GM WHERE GM.user_id = %s'
+            cursor.execute(sql_query,[user_id])
+            result = cursor.fetchall()
+        group_ids = [row[0] for row in result]
+        return group_ids
+    except Exception as e:
+        print("Error Getting User As Number Group ID: "+str(e))
+        
+def get_user_not_member_or_owner_group_id_internal(user_id):
+    try:
+        if not user_id:
+            print("Invalid Input")
+            return
+        with connections['default'].cursor() as cursor:
+            sql_query = 'SELECT GM.group_id FROM GROUP_MEMBERS GM WHERE GM.user_id = %s AND '
+            sql_query+= '(GM.group_id, GM.user_id) NOT IN '
+            sql_query+= '((SELECT GM.group_id, GM.user_id FROM GROUP_MEMBERS GO) UNION '
+            sql_query+= '(SELECT GO.group_id, GO.user_id FROM GROUP_OWNED GO))'
+            cursor.execute(sql_query,[user_id])
+            result = cursor.fetchall()
+        group_ids = [row[0] for row in result]
+        return group_ids
+    except Exception as e:
+        print("Error Getting User Not Owner Or Member Number Group ID: "+str(e))
+        
+
+def get_user_as_owner_group_id_internal(user_id):
+    try:
+        if not user_id:
+            print("Invalid Input")
+            return
+        with connections['default'].cursor() as cursor:
+            sql_query = 'SELECT GO.group_id FROM GROUP_OWNED GO WHERE GO.user_id = %s'
+            cursor.execute(sql_query,[user_id])
+            result = cursor.fetchall()
+        group_ids = [row[0] for row in result]
+        return group_ids
+    except Exception as e:
+        print("Error Getting As Owner Group ID: "+str(e))
+        
+
+def get_all_group_id_internal(group_type):
+    try:
+        if not group_type:
+            print("Invalid Input")
+            return
+        with connections['default'].cursor() as cursor:
+            sql_query = 'SELECT G.group_id FROM GROUPS G WHERE G.group_type = %s'
+            cursor.execute(sql_query,[group_type])
+            result = cursor.fetchall()
+        group_ids = [row[0] for row in result]
+        return group_ids
+    except Exception as e:
+        print("Error Getting All Group ID: "+str(e))
+        
+
+def get_group_info_internal(group_id, group_type):
+    try:
+        if not group_id or not group_type:
+            print("Invalid Input")
+            return
+        with connections['default'].cursor() as cursor:
+            sql_query  = 'SELECT G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time, COUNT(DISTINCT GM.user_id), COUNT(DISTINCT GO.user_id) FROM GROUPS G '
+            sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
+            sql_query += 'LEFT OUTER JOIN GROUP_MEMBERS GM ON GM.group_id = G.group_id '
+            sql_query += 'LEFT OUTER JOIN GROUP_OWNER GO ON GO.group_id = G.group_id '
+            sql_query += 'WHERE G.group_id = %s AND G.group_type = %s '
+            sql_query += 'GROUP BY G.group_id, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time '
+            cursor.execute(sql_query,[group_id, group_type])
+            results = cursor.fetchall()[0]
+        group_name = results[0]
+        description_id = results[1]
+        description = results[2]
+        init_time = results[3]
+        update_time = results[4]
+        member_count = results[5]
+        owner_count = results[6]
+        media = get_media_from_description_id_internal(description_id)
+        group_data = {}
+        group_data['group_id'] = group_id
+        group_data['group_type'] = group_type
+        group_data['group_name'] = group_name
+        group_data['media'] = media
+        group_data['description'] = description
+        group_data['init_time'] = init_time
+        group_data['update_time'] = update_time
+        group_data['member_count'] = member_count
+        group_data['owner_count'] = owner_count
+        return group_data
+    except Exception as e:
+        print("Error Getting Group Info: "+str(e))
+        
+
+
+def get_rest_groups_internal(user_id, group_type):
+    if not user_id or group_type:
+            print("Invalid Input")
+            return
+    try:
+        group_ids = get_user_not_member_or_owner_group_id_internal(user_id,group_type)
+        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
+        return groups_data
+    except Exception as e:
+        print("Error Getting Groups: "+str(e))
+        
+
+
+def get_owned_groups_internal(user_id, group_type):
+    if not user_id or group_type:
+            print("Invalid Input")
+            return
+    try:
+        group_ids = get_user_as_owner_group_id_internal(user_id,group_type)
+        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
+        return groups_data
+    except Exception as e:
+        print("Error Getting Owned Groups: "+str(e))
+        
+
+
+def get_membered_groups_internal(user_id, group_type):
+    if not user_id or group_type:
+            print("Invalid Input")
+            return
+    try:
+        group_ids = get_user_as_member_group_id_internal(user_id,group_type)
+        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
+        return groups_data
+    except Exception as e:
+        print("Error Getting Membered Groups: "+str(e))
+        
+
+@api_view(['POST'])
+def get_groups(request):
+    try:
+        user_id = request.data.get('user_id')
+        group_type = request.data.get('group_type')
+        if not user_id or group_type:
+            print("Invalid Input")
+            return
+        notingroup = get_rest_groups_internal(user_id,group_type)
+        memberingroup = get_membered_groups_internal(user_id,group_type)
+        owneringroup = get_owned_groups_internal(user_id,group_type)
+        return Response({'not_in_group':notingroup, 'member_in_group':memberingroup, 'owner_in_group':owneringroup})
+    except Exception as e:
+        print("Error Getting Groups: "+str(e))
+        
 
 @api_view(['POST'])
 def get_friend_list(request):
@@ -575,173 +711,6 @@ def get_sent_friend_req_list(request):
     except Exception as e:
         print("Error Getting Friend Request List: "+str(e))
         return JsonResponse({'message': 'error'})
-
-def get_user_as_member_group_id_internal(user_id, group_type):
-    try:
-        if not user_id:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT GM.group_id FROM GROUP_MEMBERS GM '
-            sql_query+= 'JOIN GROUPS G ON GM.group_id = G.group_id '
-            sql_query+= 'WHERE GM.user_id = %s AND G.group_type=%s'
-            cursor.execute(sql_query,[user_id, group_type])
-            result = cursor.fetchall()
-        group_ids = [row[0] for row in result]
-        return group_ids
-    except Exception as e:
-        print("Error Getting User As Number Group ID: "+str(e))
-        
-def get_user_not_member_or_owner_group_id_internal(user_id, group_type):
-    try:
-        if not user_id:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT GM.group_id FROM GROUP_MEMBERS GM '
-            sql_query+= 'JOIN GROUPS G ON GM.group_id = G.group_id '
-            sql_query+= 'WHERE GM.user_id = %s AND '
-            sql_query+= 'G.group_type = %s AND '
-            sql_query+= '(GM.group_id, GM.user_id) NOT IN '
-            sql_query+= '((SELECT GM.group_id, GM.user_id FROM GROUP_MEMBERS GO) UNION '
-            sql_query+= '(SELECT GO.group_id, GO.user_id FROM GROUP_OWNED GO))'
-            cursor.execute(sql_query,[user_id, group_type])
-            result = cursor.fetchall()
-        group_ids = [row[0] for row in result]
-        return group_ids
-    except Exception as e:
-        print("Error Getting User Not Owner Or Member Number Group ID: "+str(e))
-        
-
-def get_user_as_owner_group_id_internal(user_id, group_type):
-    try:
-        if not user_id:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT GO.group_id FROM GROUP_OWNED GO '
-            sql_query+= 'JOIN GROUPS G ON G.group_id = GO.group_id '
-            sql_query+= 'WHERE GO.user_id = %s AND G.group_type=%s'
-            cursor.execute(sql_query,[user_id,group_type])
-            result = cursor.fetchall()
-        group_ids = [row[0] for row in result]
-        return group_ids
-    except Exception as e:
-        print("Error Getting As Owner Group ID: "+str(e))
-        
-
-def get_all_group_id_internal(group_type):
-    try:
-        if not group_type:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT G.group_id FROM GROUPS G WHERE G.group_type = %s'
-            cursor.execute(sql_query,[group_type])
-            result = cursor.fetchall()
-        group_ids = [row[0] for row in result]
-        return group_ids
-    except Exception as e:
-        print("Error Getting All Group ID: "+str(e))
-        
-
-def get_group_info_internal(group_id, group_type):
-    try:
-        if not group_id or not group_type:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query  = 'SELECT G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time, COUNT(DISTINCT GM.user_id), COUNT(DISTINCT GO.user_id) FROM GROUPS G '
-            sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
-            sql_query += 'LEFT OUTER JOIN GROUP_MEMBERS GM ON GM.group_id = G.group_id '
-            sql_query += 'LEFT OUTER JOIN GROUP_OWNED GO ON GO.group_id = G.group_id '
-            sql_query += 'WHERE G.group_id = %s AND G.group_type = %s '
-            sql_query += 'GROUP BY G.group_id, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time '
-            cursor.execute(sql_query,[group_id, group_type])
-            results = cursor.fetchall()[0]
-        group_name = results[0]
-        description_id = results[1]
-        description = results[2]
-        init_time = results[3]
-        update_time = results[4]
-        member_count = results[5]
-        owner_count = results[6]
-        media = get_media_from_description_id_internal(description_id)
-        group_data = {}
-        group_data['group_id'] = group_id
-        group_data['group_type'] = group_type
-        group_data['group_name'] = group_name
-        group_data['media'] = media
-        group_data['description'] = description
-        group_data['init_time'] = init_time
-        group_data['update_time'] = update_time
-        group_data['member_count'] = member_count
-        group_data['owner_count'] = owner_count
-        return group_data
-    except Exception as e:
-        print("Error Getting Group Info: "+str(e))
-        
-
-
-def get_rest_groups_internal(user_id, group_type):
-    if not user_id or not group_type:
-            print("Invalid Input")
-            return
-    try:
-        group_ids = get_user_not_member_or_owner_group_id_internal(user_id,group_type)
-        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
-        return groups_data
-    except Exception as e:
-        print("Error Getting Groups: "+str(e))
-        
-
-
-def get_owned_groups_internal(user_id, group_type):
-    if not user_id or not group_type:
-            print("Invalid Input")
-            return
-    try:
-        group_ids = get_user_as_owner_group_id_internal(user_id,group_type)
-        groups_data= [get_group_info_internal(group_id,group_type) for group_id in group_ids]
-        return groups_data
-    except Exception as e:
-        print("Error Getting Owned Groups: "+str(e))
-        
-def get_membered_groups_internal(user_id, group_type):
-    if not user_id or not group_type:
-            print("Invalid Input")
-            return
-    try:
-        group_ids = get_user_as_member_group_id_internal(user_id,group_type)
-        groups_data= [get_group_info_internal(group_id,group_type) for group_id in group_ids]
-        return groups_data
-    except Exception as e:
-        print("Error Getting Membered Groups: "+str(e))
-        
-
-@api_view(['POST'])
-def get_groups(request):
-    try:
-        user_id = request.data.get('user_id')
-        group_type = request.data.get('group_type')
-        print(user_id,group_type)
-        if not user_id or not group_type:
-            print("Invalid Input")
-            return
-        print(1)
-        notingroup = get_rest_groups_internal(user_id,group_type)
-        print(2)
-        memberingroup = get_membered_groups_internal(user_id,group_type)
-        print(3)
-        owneringroup = get_owned_groups_internal(user_id,group_type)
-        print(4)
-        ret = {'not_in_group':notingroup, 'member_in_group':memberingroup, 'owner_in_group':owneringroup}
-        print("hello")
-        print(ret)
-        return Response(ret)
-    except Exception as e:
-        print("Error Getting Groups: "+str(e))
-        return JsonResponse({"error":"error"})
 
 @api_view(['POST'])
 def set_group(request):
@@ -962,11 +931,7 @@ def search_users(request):
             with connections['default'].cursor() as cursor:
                 user_id = row[0]
                 user_name = row[1]
-                mediadata = get_user_name_and_single_profile_pic_from_user_id_internal(user_id)
-                if mediadata:
-                    media = mediadata['profile_pic']
-                else:
-                    media = ""
+                media = get_user_name_and_single_profile_pic_from_user_id_internal(user_id)['profile_pic']
                 temp_obj = {}
                 temp_obj['profile_pic'] = media
                 temp_obj['user_name'] = user_name
@@ -1016,7 +981,7 @@ def get_marketplace(request):
 
         return Response(posts)
     except Exception as e:
-        print("Error Getting Marketplace")
+        print("Error Getting Marketplace: "+str(e))
 
 @api_view(['POST'])
 def set_marketplace(request):
@@ -1196,14 +1161,6 @@ def update_user_post(request):
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
-        return JsonResponse({'message': 'Image uploaded successfully'})
-    except IntegrityError:
-        return Response({"error": "IntegrityError: User already exists"}, status=400)
-    except DataError:
-        return Response({"error": "DataError: Invalid data format"}, status=400)
-    except Exception as e:
-        return Response({"error": f"An error occurred: {str(e)}"}, status=500)
-
 @api_view(['POST'])
 def delete_user_post(request):
     try:
@@ -1245,6 +1202,29 @@ def get_user_name_and_profile_pic_from_user_id_internal(user_id):
             cursor.execute(sql_query,[user_id])
             medias = cursor.fetchall()
             media = [image_path+str(row[0]) for row in medias]
+        data = {}
+        data['user_name'] = user_name
+        data['profile_pic'] = media
+        return data
+    except Exception as e:
+        print ("Error Getting User Name And Profile Pic From User ID: "+str(e))
+def get_user_name_and_single_profile_pic_from_user_id_internal(user_id):
+    try:
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT user_name FROM USERS "
+            sql_query+= "WHERE user_id = %s "
+            cursor.execute(sql_query,[user_id])
+            user_name = cursor.fetchall()[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+            sql_query+= "JOIN POST P ON UPP.post_id = P.post_id "
+            sql_query+= "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
+            sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON P.description_id = CDM.description_id "
+            sql_query+= "WHERE UPP.user_id = %s "
+            sql_query+= "ORDER BY CD.init_time DESC "
+            cursor.execute(sql_query,[user_id])
+            medias = cursor.fetchall()
+            media = image_path+str(medias[0][0])
         data = {}
         data['user_name'] = user_name
         data['profile_pic'] = media

@@ -58,7 +58,7 @@ export default function SearchCard({postData, setCurrentComponent, setProfileId}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img
-              src={postData.profile_pic[0]}
+              src={postData.profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             ></img>

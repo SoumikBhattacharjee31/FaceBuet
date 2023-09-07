@@ -80,7 +80,21 @@ export default function Groups({ open, setCurrentComponent }) {
         {isLoading ? (
           <></>
         ) : (
-          data.map((postData, index) => (
+          data.not_in_group.map((postData, index) => (
+            <GroupCard key={index} postData={postData} />
+          ))
+        )}
+        {isLoading ? (
+          <></>
+        ) : (
+          data.member_in_group.map((postData, index) => (
+            <GroupCard key={index} postData={postData} />
+          ))
+        )}
+        {isLoading ? (
+          <></>
+        ) : (
+          data.owner_in_group.map((postData, index) => (
             <GroupCard key={index} postData={postData} />
           ))
         )}

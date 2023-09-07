@@ -45,7 +45,7 @@ export default function FriendCard({postData, setCurrentComponent, setProfileId}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}
-            <img src={postData.media[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
+            <img src={postData.media} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
         }
         action={

@@ -55,11 +55,11 @@ export default function ChatCard({open, setCurrentComponent, messageData, setUpd
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            {messageData.profile_pic && <img
-              src={messageData.profile_pic[0]}
+            <img
+              src={messageData.sender_profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>}
+            ></img>
           </Avatar>
         }
         action={

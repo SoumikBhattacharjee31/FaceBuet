@@ -61,7 +61,7 @@ export default function ChatHomeCard({postData, setCurrentComponent, setProfileI
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img
-              src={postData.media[0]}
+              src={postData.media}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             ></img>

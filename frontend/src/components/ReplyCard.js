@@ -53,7 +53,7 @@ export default function ReplyCard({replyData, open, setCurrentComponent}) {
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             <img
-              src={replyData.profile_pic[0]}
+              src={replyData.profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             ></img>
