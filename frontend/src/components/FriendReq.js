@@ -58,7 +58,7 @@ export default function FriendReq({open, setCurrentComponent, setProfileId}) {
     <Box sx={{ display: "flex" }}>
       <Main open={open}>
         <DrawerHeader />
-        {isLoading ? (
+        {isLoading || !data ? (
           <></>
         ) : (
           data.map((postData, index) => (

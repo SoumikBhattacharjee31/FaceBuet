@@ -165,7 +165,10 @@ def get_user_name_and_single_profile_pic_from_user_id_internal(user_id):
             sql_query+= "ORDER BY CD.init_time DESC "
             cursor.execute(sql_query,[user_id])
             medias = cursor.fetchall()
-            media = image_path+str(medias[0][0])
+            try:
+                media = image_path+str(medias[0][0])
+            except Exception as e:
+                media = ""
         data = {}
         data['user_name'] = user_name
         data['profile_pic'] = media
@@ -509,7 +512,7 @@ def get_friend_list(request):
         return JsonResponse({'message': 'error'})
 
 @api_view(['POST'])
-def get_friend_req_list(request):
+def get_sent_friend_req_list(request):
     try:
         user_id = request.data.get('user_id')
         if not user_id:
@@ -539,7 +542,7 @@ def get_friend_req_list(request):
         print("Error Getting Friend Request List: "+str(e))
         return JsonResponse({'message': 'error'})
 @api_view(['POST'])
-def get_sent_friend_req_list(request):
+def get_friend_req_list(request):
     try:
         user_id = request.data.get('user_id')
         if not user_id:
@@ -551,7 +554,7 @@ def get_sent_friend_req_list(request):
         with connections['default'].cursor() as cursor:
             sql_query =  "SELECT U.user_id, U.user_name FROM FRIEND_REQ FR "
             sql_query += "JOIN USERS U ON FR.user_id = U.user_id "
-            sql_query += "WHERE FR.user_id = %s "
+            sql_query += "WHERE FR.friend_req_id = %s "
             cursor.execute(sql_query, [user_id])
             rows = cursor.fetchall()
         for row in rows:
@@ -591,14 +594,12 @@ def get_user_not_member_or_owner_group_id_internal(user_id, group_type):
             print("Invalid Input")
             return
         with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT GM.group_id FROM GROUP_MEMBERS GM '
-            sql_query+= 'JOIN GROUPS G ON GM.group_id = G.group_id '
-            sql_query+= 'WHERE GM.user_id = %s AND '
-            sql_query+= 'G.group_type = %s AND '
-            sql_query+= '(GM.group_id, GM.user_id) NOT IN '
-            sql_query+= '((SELECT GM.group_id, GM.user_id FROM GROUP_MEMBERS GO) UNION '
-            sql_query+= '(SELECT GO.group_id, GO.user_id FROM GROUP_OWNED GO))'
-            cursor.execute(sql_query,[user_id, group_type])
+            sql_query = 'SELECT G.group_id FROM GROUPS G '
+            sql_query+= 'WHERE G.group_type = %s '
+            sql_query+= 'AND %s NOT IN '
+            sql_query+= '((SELECT GM.user_id FROM GROUP_MEMBERS GM WHERE G.group_id = GM.group_id) UNION '
+            sql_query+= '(SELECT GO.user_id FROM GROUP_OWNED GO  WHERE G.group_id = GO.group_id))'
+            cursor.execute(sql_query,[group_type, user_id])
             result = cursor.fetchall()
         group_ids = [row[0] for row in result]
         return group_ids
@@ -805,18 +806,20 @@ def get_chat_friend_list(request):
 @api_view(['POST'])
 def get_events(request):
     try:
+        print(1)
         user_id = request.data.get('user_id')
         group_type = 'event'
         notingroup = get_rest_groups_internal(user_id,group_type)
         memberingroup = get_membered_groups_internal(user_id,group_type)
         owneringroup = get_owned_groups_internal(user_id,group_type)
         notinevent = []
+        print(2)
         for event in notingroup:
             group_id=event['group_id']
             with connections['default'].cursor() as cursor:
                 sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
                 cursor.execute(sql_query,[group_id])
-                event_temp_info = cursor.fetchall()
+                event_temp_info = cursor.fetchall()[0]
                 event_id = event_temp_info[0]
                 start_time = event_temp_info[1]
                 end_time = event_temp_info[2]
@@ -878,7 +881,6 @@ def get_events(request):
                 memberinevent.append(tempmemberinevent)
 
         groups_data={'not_in_event':notinevent,'member_in_event':memberinevent,'owner_in_event':ownerinevent}
-        print(groups_data)
         return Response(groups_data)
     except Exception as e:
         print("Error Getting Events: "+str(e))
@@ -1064,6 +1066,7 @@ def get_user_profile(request):
             cursor.execute(sql_query, [user_id, user_id])
             friend_count = cursor.fetchall()[0]
             profile_data['friend_count'] = friend_count[0]
+            profile_data['user_id'] = user_id
 
         return Response(profile_data)
     except Exception as e:
@@ -1367,3 +1370,72 @@ def set_group_post(request):
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
     
+@api_view(['POST'])
+def is_friend(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    if user_id == friend_id:
+        return Response({"status":"own"})
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT COUNT(*) FROM BEFRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)"
+        cursor.execute(sql_query, [user_id, friend_id, user_id, friend_id])
+        friend = cursor.fetchall()[0][0]
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
+        cursor.execute(sql_query, [user_id, friend_id])
+        sent_request = cursor.fetchall()[0][0]
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
+        cursor.execute(sql_query, [friend_id, user_id])
+        received_request = cursor.fetchall()[0][0]
+    if int(friend)>0:
+        return Response({"status":"friend"})
+    if int(sent_request)>0:
+        return Response({"status":"sent"})
+    if int(received_request)>0:
+        return Response({"status":"received"})
+    return Response({"status":"none"})
+
+@api_view(['POST'])
+def delete_user(request):
+    user_id = request.data.get('user_id')
+    with connections['default'].cursor() as cursor:
+        sql_query = "DELETE FROM USERS WHERE user_id = %s"
+        cursor.execute(sql_query,[user_id])
+    return Response("success")
+@api_view(['POST'])
+def unfriend(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    print(user_id,friend_id)
+    with connections['default'].cursor() as cursor:
+        sql_query = "DELETE FROM BEFRIENDS WHERE (user_id=%s AND friend_id=%s) OR (user_id=%s AND friend_id=%s)"
+        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+    return Response("success")
+@api_view(['POST'])
+def delete_request(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    with connections['default'].cursor() as cursor:
+        sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
+        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+    return Response("success")
+@api_view(['POST'])
+def send_request(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO FRIEND_REQ (user_id,friend_req_id) VALUES (%s,%s) "
+        cursor.execute(sql_query,[user_id,friend_id])
+    return Response("success")
+@api_view(['POST'])
+def accept_request(request):
+    user_id = request.data.get('user_id')
+    friend_id = request.data.get('friend_id')
+    with connections['default'].cursor() as cursor:
+        sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
+        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+    with connections['default'].cursor() as cursor:
+        sql_query = "INSERT INTO BEFRIENDS (user_id,friend_id) VALUES (%s,%s) "
+        cursor.execute(sql_query,[user_id,friend_id])
+    return Response("success")

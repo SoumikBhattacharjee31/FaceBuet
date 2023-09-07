@@ -1,10 +1,10 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import ProfileCard from "../components/ProfileCard";
-import Post from "../components/Post";
+import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import FriendReqCard from "./FriendReqCard";
 
 const drawerWidth = 240;
 
@@ -36,40 +36,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Profile({open, setCurrentComponent, profileId}) {
-  const fetched_user_id = profileId
+export default function FriendReq({open, setCurrentComponent, setProfileId}) {
+  const fetched_user_id = localStorage.getItem("user_id");
   const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);
-  const [profilePosts, setProfilePosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const buttonStyle = {
-    width: '400px',  // Adjust the width as needed
-    height: '50px', // Adjust the height as needed
-  };
-
   React.useEffect(() => {
     
-    axios
-      .post("http://localhost:8000/api/get_user_profile/", request_data, {
+    const response = axios
+      .post("http://localhost:8000/api/get_sent_friend_req_list/", request_data, {
         headers: {
           "Content-Type": "application/json",
         },
       }).then (response => {
         setData(response.data);
-        setIsLoading(false);
-        console.log(response.data)
-      })
-  }, []);
-
-  React.useEffect(() => {
-    
-    axios
-      .post("http://localhost:8000/api/home/", request_data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then (response => {
-        setProfilePosts(response.data);
         setIsLoading(false);
       })
   }, []);
@@ -78,25 +58,14 @@ export default function Profile({open, setCurrentComponent, profileId}) {
     <Box sx={{ display: "flex" }}>
       <Main open={open}>
         <DrawerHeader />
-        {isLoading ? (
+        {isLoading || !data ? (
           <></>
-        ) : 
-            (
-              <>
-              <ProfileCard postData={data} />
-              {
-                profilePosts.map((postData, index) => (
-                  <Post key={index} postData={postData} />
-                ))
-              }
-              </>
-            
-            
-            )
-        }
+        ) : (
+          data.map((postData, index) => (
+            <FriendReqCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setProfileId={setProfileId} />
+          ))
+        )}
       </Main>
     </Box>
   );
 };
-
-

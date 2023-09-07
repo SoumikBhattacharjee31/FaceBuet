@@ -16,6 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Comments from "./Comments";
 import PostMenu from "./PostMenu";
+import PostReactionMenu from "./PostReactionMenu";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -63,9 +64,6 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
           </Avatar>
         }
         action={
-          // <IconButton aria-label="settings">
-          //   <MoreVertIcon />
-          // </IconButton>
           <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
         title={postData.user_name}
@@ -83,13 +81,15 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
+        {/* <PostReactionMenu/> */}
+        {/* <IconButton aria-label="add to favorites">
           {postData.react_count}
           <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
+        </IconButton> */}
+        {/* <IconButton aria-label="share">
           <ShareIcon />
-        </IconButton>
+        </IconButton> */}
+        {/* <PostShareMenu/> */}
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}

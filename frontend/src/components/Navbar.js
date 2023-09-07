@@ -178,6 +178,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
     Feed: "/",
     Friends: "/", // Define the URL for Friends
     Requests: "/",
+    Sent_Requests: "/",
     Groups: "/", // Define the URL for Groups
     Messages:"/",
     Pages:"/",
