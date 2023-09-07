@@ -26,7 +26,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function EventCard({postData, setCurrentComponent, setGroupId}) {
+export default function GroupCard({postData, setCurrentComponent, setGroupId}) {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -35,14 +35,13 @@ export default function EventCard({postData, setCurrentComponent, setGroupId}) {
 
   const gotoGroup = ()=>{
     setGroupId(postData.group_id)
-    console.log(postData.group_id)
     setCurrentComponent("GroupPage")
   }
 
   return (
     <Card sx={{Width: 500, border: "2px solid #ccc", borderRadius: "10px" }}>
       <CardHeader
-      onClick={gotoGroup}
+        onClick={gotoGroup}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}
@@ -54,7 +53,7 @@ export default function EventCard({postData, setCurrentComponent, setGroupId}) {
             <MoreVertIcon />
           </IconButton>
         }
-        title={postData.event_name}
+        title={postData.group_name}
         subheader={postData.init_time}
         // subheader="August 21 , 2023"
       />
@@ -65,7 +64,7 @@ export default function EventCard({postData, setCurrentComponent, setGroupId}) {
         image={postData.media[0]}
         alt="Paella dish"
       />
-      <CardContent>
+      <CardContent  onClick={gotoGroup}>
         <Typography variant="body2" color="text.secondary">
           {postData.description}
         </Typography>

@@ -14,6 +14,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Comments from "./Comments";
+import PostMenu from "./PostMenu";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -26,44 +28,54 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function EventCard({postData, setCurrentComponent, setGroupId}) {
-  const [expanded, setExpanded] = React.useState(false);
+const cardStyles = {
+  display: "flex",
+  flexDirection: "column",
+  // maxWidth: 1000, // Set the maximum width to make it moderately larger
+  border: "2px solid #ccc",
+  borderRadius: "10px",
+};
 
-  const handleExpandClick = () => {
+const mediaStyles = {
+  flex: "1",
+  objectFit: "cover",
+};
+
+export default function Post({open, setCurrentComponent, postData, setUpdatePostId}) {
+  // const postData = props.postData;
+  const [expanded, setExpanded] = React.useState(false);
+  const [commentInfo, setCommentInfo] = React.useState([]);
+
+  const handleExpandClick = async () => {
     setExpanded(!expanded);
   };
 
-  const gotoGroup = ()=>{
-    setGroupId(postData.group_id)
-    console.log(postData.group_id)
-    setCurrentComponent("GroupPage")
-  }
-
   return (
-    <Card sx={{Width: 500, border: "2px solid #ccc", borderRadius: "10px" }}>
+    <Card sx={cardStyles}>
       <CardHeader
-      onClick={gotoGroup}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            {/* <img src={postData.media[0]} alt="R"></img> */}
-            <img src={postData.media[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
+            <img
+              src={postData.media}
+              alt="R"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            ></img>
           </Avatar>
         }
         action={
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
+        //   <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
-        title={postData.event_name}
-        subheader={postData.init_time}
-        // subheader="August 21 , 2023"
+        title={postData.group_name}
+        subheader={postData.member_count}
       />
       <CardMedia
-        onClick={gotoGroup}
         component="img"
-        height="194"
-        image={postData.media[0]}
+        image={postData.media?postData.media[0]:""}
         alt="Paella dish"
+        sx={mediaStyles}
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">
@@ -77,24 +89,23 @@ export default function EventCard({postData, setCurrentComponent, setGroupId}) {
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
-        <ExpandMore
+        {/* <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
         >
           <ExpandMoreIcon />
-        </ExpandMore>
+          Comments
+        </ExpandMore> */}
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          
           <Typography paragraph>
-           
+            <Comments post_id={postData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/>
           </Typography>
-         
         </CardContent>
-      </Collapse>
+      </Collapse> */}
     </Card>
   );
 }

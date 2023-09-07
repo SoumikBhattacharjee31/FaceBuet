@@ -821,7 +821,7 @@ def get_events(request):
                 start_time = event_temp_info[1]
                 end_time = event_temp_info[2]
                 location = event_temp_info[3]
-                tempnotinevent={}
+                tempnotinevent = get_group_info_internal(group_id)
                 tempnotinevent['event_id'] = event_id
                 tempnotinevent['start_time'] = start_time
                 tempnotinevent['end_time'] = end_time
@@ -838,12 +838,12 @@ def get_events(request):
             with connections['default'].cursor() as cursor:
                 sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
                 cursor.execute(sql_query,[group_id])
-                event_temp_info = cursor.fetchall()
+                event_temp_info = cursor.fetchall()[0]
                 event_id = event_temp_info[0]
                 start_time = event_temp_info[1]
                 end_time = event_temp_info[2]
                 location = event_temp_info[3]
-                tempownerinevent={}
+                tempownerinevent = get_group_info_internal(group_id)
                 tempownerinevent['event_id'] = event_id
                 tempownerinevent['start_time'] = start_time
                 tempownerinevent['end_time'] = end_time
@@ -860,12 +860,12 @@ def get_events(request):
             with connections['default'].cursor() as cursor:
                 sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
                 cursor.execute(sql_query,[group_id])
-                event_temp_info = cursor.fetchall()
+                event_temp_info = cursor.fetchall()[0]
                 event_id = event_temp_info[0]
                 start_time = event_temp_info[1]
                 end_time = event_temp_info[2]
                 location = event_temp_info[3]
-                tempmemberinevent={}
+                tempmemberinevent = get_group_info_internal(group_id)
                 tempmemberinevent['event_id'] = event_id
                 tempmemberinevent['start_time'] = start_time
                 tempmemberinevent['end_time'] = end_time
@@ -878,9 +878,26 @@ def get_events(request):
                 memberinevent.append(tempmemberinevent)
 
         groups_data={'not_in_event':notinevent,'member_in_event':memberinevent,'owner_in_event':ownerinevent}
+        print(groups_data)
         return Response(groups_data)
     except Exception as e:
         print("Error Getting Events: "+str(e))
+
+def get_event_info(group_id):
+    event_info = get_group_info_internal(group_id)
+    with connections['default'].cursor() as cursor:
+        sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
+        cursor.execute(sql_query,[group_id])
+        event_temp_info = cursor.fetchall()
+        event_id = event_temp_info[0]
+        start_time = event_temp_info[1]
+        end_time = event_temp_info[2]
+        location = event_temp_info[3]
+        event_info['event_id'] = event_id
+        event_info['start_time'] = start_time
+        event_info['end_time'] = end_time
+        event_info['location'] = location
+    return event_info
 
 @api_view(['POST'])
 def set_event(request):
@@ -1349,3 +1366,4 @@ def set_group_post(request):
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
+    

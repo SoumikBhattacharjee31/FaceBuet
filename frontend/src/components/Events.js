@@ -39,7 +39,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Events({ open, setCurrentComponent }) {
+export default function Events({ open, setCurrentComponent, setGroupId }) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = { user_id: fetched_user_id };
   const [data, setData] = React.useState([]);
@@ -54,6 +54,7 @@ export default function Events({ open, setCurrentComponent }) {
       .then((response) => {
         setData(response.data);
         setIsLoading(false);
+        console.log(response.data)
       });
   }, []);
   const handleButtonClick = () => {
@@ -80,37 +81,24 @@ export default function Events({ open, setCurrentComponent }) {
         {isLoading ? (
           <></>
         ) : (
-          data.map((postData, index) => (
-            <EventCard key={index} postData={postData} />
+          data.not_in_event.map((postData, index) => (
+            <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
-        <div className="dropdown">
-          <button
-            className="btn btn-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Dropdown button
-          </button>
-          <ul className="dropdown-menu">
-            <li>
-              <a className="dropdown-item" href="#">
-                Action
-              </a>
-            </li>
-            <li>
-              <a className="dropdown-item" href="#">
-                Another action
-              </a>
-            </li>
-            <li>
-              <a className="dropdown-item" href="#">
-                Something else here
-              </a>
-            </li>
-          </ul>
-        </div>
+        {isLoading ? (
+          <></>
+        ) : (
+          data.member_in_event.map((postData, index) => (
+            <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
+          ))
+        )}
+        {isLoading ? (
+          <></>
+        ) : (
+          data.owner_in_event.map((postData, index) => (
+            <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
+          ))
+        )}
       </Main>
     </Box>
   );

@@ -39,7 +39,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Pages({ open, setCurrentComponent }) {
+export default function Pages({ open, setCurrentComponent, setGroupId }) {
   const fetched_user_id = localStorage.getItem("user_id");
   const request_data = { user_id: fetched_user_id, group_type: "page" };
   const [data, setData] = React.useState([]);
@@ -80,8 +80,22 @@ export default function Pages({ open, setCurrentComponent }) {
         {isLoading ? (
           <></>
         ) : (
-          data.map((postData, index) => (
-            <PageCard key={index} postData={postData} />
+          data.not_in_group.map((postData, index) => (
+            <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
+          ))
+        )}
+        {isLoading ? (
+          <></>
+        ) : (
+          data.member_in_group.map((postData, index) => (
+            <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
+          ))
+        )}
+        {isLoading ? (
+          <></>
+        ) : (
+          data.owner_in_group.map((postData, index) => (
+            <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
       </Main>
