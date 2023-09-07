@@ -1,13 +1,11 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Post from "./Post";
+import GroupPageCard from "../components/GroupPageCard";
+import Post from "../components/Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
-import GroupCard from "./GroupCard";
-import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
-import Stack from '@mui/material/Stack';
 
 const drawerWidth = 240;
 
@@ -39,29 +37,34 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function Groups({ open, setCurrentComponent, setGroupId }) {
-  const fetched_user_id = localStorage.getItem("user_id");
-  const request_data = { user_id: fetched_user_id, group_type: "group" };
+export default function GroupPage({open, setCurrentComponent, groupId, setGroupId}) {
+  const request_data = {group_id:groupId};
   const [data, setData] = React.useState([]);
+  const [profilePosts, setProfilePosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+
+
   React.useEffect(() => {
-    const response = axios
-      .post("http://localhost:8000/api/get_groups/", request_data, {
+    
+    axios
+      .post("http://localhost:8000/api/get_group_page/", request_data, {
         headers: {
           "Content-Type": "application/json",
         },
-      })
-      .then((response) => {
+      }).then (response => {
         setData(response.data);
         setIsLoading(false);
-      });
+        console.log(response.data)
+      })
   }, []);
+
   const handleButtonClick = () => {
-    setCurrentComponent("creategroup")
+    setGroupId(groupId)
+    setCurrentComponent("creategrouppost")
   };
 
   return (
-    <Box sx={{ position: 'relative', display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Button 
       variant="contained" 
       endIcon={<SendIcon />}
@@ -79,26 +82,23 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
         <DrawerHeader />
         {isLoading ? (
           <></>
-        ) : (
-          data.not_in_group.map((postData, index) => (
-            <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
-          ))
-        )}
-        {isLoading ? (
-          <></>
-        ) : (
-          data.member_in_group.map((postData, index) => (
-            <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
-          ))
-        )}
-        {isLoading ? (
-          <></>
-        ) : (
-          data.owner_in_group.map((postData, index) => (
-            <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
-          ))
-        )}
+        ) : 
+            (
+              <>
+              <GroupPageCard postData={data.group_info} />
+              { data.post_info?
+                data.post_info.map((postData, index) => (
+                  <Post key={index} postData={postData} />
+                ))
+                :<></>
+              }
+              </>
+            
+            
+            )
+        }
       </Main>
     </Box>
   );
-}
+};
+

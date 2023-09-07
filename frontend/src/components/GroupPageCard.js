@@ -63,17 +63,17 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
           </Avatar>
         }
         action={
-          // <IconButton aria-label="settings">
-          //   <MoreVertIcon />
-          // </IconButton>
-          <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
+          <IconButton aria-label="settings">
+            <MoreVertIcon />
+          </IconButton>
+        //   <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
-        title={postData.user_name}
-        subheader={postData.init_time}
+        title={postData.group_name}
+        subheader={postData.member_count}
       />
       <CardMedia
         component="img"
-        image={postData.media[0]}
+        image={postData.media?postData.media[0]:""}
         alt="Paella dish"
         sx={mediaStyles}
       />
@@ -84,13 +84,12 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
       </CardContent>
       <CardActions disableSpacing>
         <IconButton aria-label="add to favorites">
-          {postData.react_count}
           <FavoriteIcon />
         </IconButton>
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
-        <ExpandMore
+        {/* <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
@@ -98,15 +97,15 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
         >
           <ExpandMoreIcon />
           Comments
-        </ExpandMore>
+        </ExpandMore> */}
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {/* <Typography paragraph> */}
+          <Typography paragraph>
             <Comments post_id={postData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/>
-          {/* </Typography> */}
+          </Typography>
         </CardContent>
-      </Collapse>
+      </Collapse> */}
     </Card>
   );
 }

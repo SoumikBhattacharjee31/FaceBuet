@@ -25,4 +25,6 @@ urlpatterns = [
     path('delete_user_post/', views.delete_user_post, name='delete_user_post'),
     path('get_messages/', views.get_messages, name='get_messages'),
     path('set_message/', views.set_message, name='set_message'),
+    path('get_group_page/', views.get_group_page, name='get_group_page'),
+    path('set_group_post/', views.set_group_post, name='set_group_post'),
 ]

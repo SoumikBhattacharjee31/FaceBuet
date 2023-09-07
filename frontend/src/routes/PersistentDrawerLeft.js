@@ -19,10 +19,13 @@ import Profile from "../components/Profile";
 import SearchPage from "../components/SearchPage";
 import UpdatePost from "../components/UpdatePost";
 import Chat from "../components/Chat";
+import GroupPage from "../components/GroupPage";
+import CreateGroupPost from "../components/CreateGroupPost";
 
 
 export default function PersistentDrawerLeft() {
   const [profileId, setProfileId] = React.useState([]);
+  const [groupId, setGroupId] = React.useState([]);
   const [searchData, setSearchData] = React.useState([]);
   const [updatePostId, setUpdatePostId] = React.useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -37,7 +40,7 @@ export default function PersistentDrawerLeft() {
       <Navbar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} setCurrentComponent = {setCurrentComponent} setSearchData = {setSearchData} setProfileId={setProfileId} />
       { currentComponent.toLowerCase() === "feed" && < Feed open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} setUpdatePostId={setUpdatePostId}/>}
       { currentComponent === "createpost" && < CreatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
-      { currentComponent === "Groups" && < Groups open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
+      { currentComponent === "Groups" && < Groups open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} setGroupId={setGroupId} />}
       { currentComponent === "Pages" && < Pages open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Friends" && < Friends open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} setProfileId={setProfileId}/>}
       { currentComponent === "Requests" && < FriendReq open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} setProfileId={setProfileId}/>}
@@ -52,6 +55,8 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} setProfileId={setProfileId} />}
       { currentComponent === "editpost" && < UpdatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} post_id = {updatePostId} />}
       { currentComponent === "Chat" && < Chat open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} friend_id = {profileId} />}
+      { currentComponent === "GroupPage" && < GroupPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
+      { currentComponent === "creategrouppost" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
       <RightSidebar/>
     </Box>
   );

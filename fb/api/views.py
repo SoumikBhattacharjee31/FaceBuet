@@ -52,7 +52,6 @@ def set_media_internal(uploaded_image, type = 'image'):
         image_name = str(media_id)
         fs = FileSystemStorage(location=absolute_image_path)
         fs.save(image_name, uploaded_image)
-        print('world')
         return media_id
     except Exception as e:
         print("Error Setting Media: "+str(e))
@@ -530,14 +529,11 @@ def get_friend_req_list(request):
             user_name = row[1]
             friend_data = get_user_name_and_single_profile_pic_from_user_id_internal(friend_id)
             media = friend_data['profile_pic']
-            # print(media)
             temp_obj = {}
             temp_obj['user_id'] = friend_id
             temp_obj['user_name'] = user_name
             temp_obj['media'] = media
             profile_data.append(temp_obj)
-        #         print(temp_obj)
-        # print(profile_data)
         return Response(profile_data)
     except Exception as e:
         print("Error Getting Friend Request List: "+str(e))
@@ -563,14 +559,11 @@ def get_sent_friend_req_list(request):
             user_name = row[1]
             friend_data = get_user_name_and_single_profile_pic_from_user_id_internal(friend_id)
             media = friend_data['profile_pic']
-            # print(media)
             temp_obj = {}
             temp_obj['user_id'] = friend_id
             temp_obj['user_name'] = user_name
             temp_obj['media'] = media
             profile_data.append(temp_obj)
-        #         print(temp_obj)
-        # print(profile_data)
         return Response(profile_data)
     except Exception as e:
         print("Error Getting Friend Request List: "+str(e))
@@ -629,43 +622,30 @@ def get_user_as_owner_group_id_internal(user_id, group_type):
     except Exception as e:
         print("Error Getting As Owner Group ID: "+str(e))
         
-
-def get_all_group_id_internal(group_type):
-    try:
-        if not group_type:
-            print("Invalid Input")
-            return
-        with connections['default'].cursor() as cursor:
-            sql_query = 'SELECT G.group_id FROM GROUPS G WHERE G.group_type = %s'
-            cursor.execute(sql_query,[group_type])
-            result = cursor.fetchall()
-        group_ids = [row[0] for row in result]
-        return group_ids
-    except Exception as e:
-        print("Error Getting All Group ID: "+str(e))
         
 
-def get_group_info_internal(group_id, group_type):
+def get_group_info_internal(group_id):
     try:
-        if not group_id or not group_type:
+        if not group_id:
             print("Invalid Input")
             return
         with connections['default'].cursor() as cursor:
-            sql_query  = 'SELECT G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time, COUNT(DISTINCT GM.user_id), COUNT(DISTINCT GO.user_id) FROM GROUPS G '
+            sql_query  = 'SELECT G.group_name, G.group_type, G.description_id, CD.description, CD.init_time, CD.update_time, COUNT(DISTINCT GM.user_id), COUNT(DISTINCT GO.user_id) FROM GROUPS G '
             sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
             sql_query += 'LEFT OUTER JOIN GROUP_MEMBERS GM ON GM.group_id = G.group_id '
             sql_query += 'LEFT OUTER JOIN GROUP_OWNED GO ON GO.group_id = G.group_id '
-            sql_query += 'WHERE G.group_id = %s AND G.group_type = %s '
-            sql_query += 'GROUP BY G.group_id, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time '
-            cursor.execute(sql_query,[group_id, group_type])
+            sql_query += 'WHERE G.group_id = %s '
+            sql_query += 'GROUP BY G.group_id, G.group_type, G.group_name, G.description_id, CD.description, CD.init_time,  CD.update_time '
+            cursor.execute(sql_query,[group_id])
             results = cursor.fetchall()[0]
         group_name = results[0]
-        description_id = results[1]
-        description = results[2]
-        init_time = results[3]
-        update_time = results[4]
-        member_count = results[5]
-        owner_count = results[6]
+        group_type = results[1]
+        description_id = results[2]
+        description = results[3]
+        init_time = results[4]
+        update_time = results[5]
+        member_count = results[6]
+        owner_count = results[7]
         media = get_media_from_description_id_internal(description_id)
         group_data = {}
         group_data['group_id'] = group_id
@@ -702,7 +682,7 @@ def get_owned_groups_internal(user_id, group_type):
             return
     try:
         group_ids = get_user_as_owner_group_id_internal(user_id,group_type)
-        groups_data= [get_group_info_internal(group_id,group_type) for group_id in group_ids]
+        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
         return groups_data
     except Exception as e:
         print("Error Getting Owned Groups: "+str(e))
@@ -713,7 +693,7 @@ def get_membered_groups_internal(user_id, group_type):
             return
     try:
         group_ids = get_user_as_member_group_id_internal(user_id,group_type)
-        groups_data= [get_group_info_internal(group_id,group_type) for group_id in group_ids]
+        groups_data= [get_group_info_internal(group_id) for group_id in group_ids]
         return groups_data
     except Exception as e:
         print("Error Getting Membered Groups: "+str(e))
@@ -724,20 +704,13 @@ def get_groups(request):
     try:
         user_id = request.data.get('user_id')
         group_type = request.data.get('group_type')
-        print(user_id,group_type)
         if not user_id or not group_type:
             print("Invalid Input")
             return
-        print(1)
         notingroup = get_rest_groups_internal(user_id,group_type)
-        print(2)
         memberingroup = get_membered_groups_internal(user_id,group_type)
-        print(3)
         owneringroup = get_owned_groups_internal(user_id,group_type)
-        print(4)
         ret = {'not_in_group':notingroup, 'member_in_group':memberingroup, 'owner_in_group':owneringroup}
-        print("hello")
-        print(ret)
         return Response(ret)
     except Exception as e:
         print("Error Getting Groups: "+str(e))
@@ -825,8 +798,6 @@ def get_chat_friend_list(request):
                 temp_obj['last_message'] = last_message
                 temp_obj['last_message_time'] = last_message_time
                 profile_data.append(temp_obj)
-        #         print(temp_obj)
-        # print(profile_data)
         return Response(profile_data)
     except Exception as e:
         return JsonResponse({'message': 'error'})
@@ -1052,7 +1023,6 @@ def get_user_profile(request):
             profile_pic = profiles['profile_pic']
             user_name = profiles['user_name']
             profile_data['profile_pic'] =  profile_pic
-            print(profile_data)
         # cover_photo
         with connections['default'].cursor() as cursor:
             sql_query =  "SELECT CDM.media_id FROM USERS U "
@@ -1303,7 +1273,6 @@ def get_messages(request):
             message_data['receiver_profile_pic'] = receiver_profile_pic
             message_data['media'] = media
             message_info.append(message_data)
-        print(message_info)
         return Response(message_info)
     except Exception  as e:
         print("Error Getting Message: "+str(e))
@@ -1338,84 +1307,45 @@ def set_message(request):
     except Exception as e:
         print("Error Setting Message: "+str(e))
 
-# @api_view(['POST'])
-# def get_group_info(request):
-#     group_id = request.data.get('group_id')
-#     # group info
-#     with connections['default'].cursor() as cursor:
-#         sql_query  = 'SELECT G.group_name, G.description_id, CD.description, CD.init_time, CD.update_time FROM GROUPS G '
-#         sql_query += 'JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id '
-#         sql_query += 'WHERE G.group_id = %s '
-#         cursor.execute(sql_query, [group_id])
-#         row = cursor.fetchall()[0]
-#     group_name = row[0]
-#     description_id = row[1]
-#     description = row[2]
-#     init_time = row[3]
-#     update_time = row[4]
+def get_group_post_ids_internal(group_id):
+    with connections['default'].cursor() as cursor:
+        sql_query = "SELECT * FROM POST_IN_GROUP PIG WHERE PIG.group_id = %s"
+        cursor.execute(sql_query,[group_id])
+        results = cursor.fetchall()
+    ret = [row[0] for row in results]
+    return ret
 
-#     # group cover
-#     with connections['default'].cursor() as cursor:
-#         sql_query  = 'SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM '
-#         sql_query += 'JOIN CARD_DESCRIPTION CD ON CDM.description_id = CD.description_id '
-#         sql_query += 'WHERE CD.description_id = %s '
-#         sql_query += 'ORDER BY CD.init_time DESC'
-#         cursor.execute(sql_query, [description_id])
-#         rows = cursor.fetchall()
-#     media = [image_path+str(row2[0]) for row2 in rows]
+def get_group_post_info_internal(group_id):
+    post_ids = get_group_post_ids_internal(group_id)
+    post_info = [get_post_info_internal(post_id) for post_id in post_ids]
+    return post_info
 
-#     # group member list
-#     with connections['default'].cursor() as cursor:
-#         sql_query = 'SELECT GM.user_id FROM GROUP_MEMBERS GM WHERE GM.group_id = %s'
-#         cursor.execute(sql_query,[group_id])
-#         result = cursor.fetchall()
-#         member_ids = [member_id[0] for member_id in result]
-    
-#     member_info = []
-#     for member_id in member_ids:
-#         member_data = get_user_name_and_profile_pic_from_user_id_internal(member_id)
-#         member = {}
-#         member['user_id'] = member_id
-#         member['user_name'] = member_data['user_name']
-#         member['profile_pic'] = member_data['profile_pic']
-#         member_info.append(member)
+@api_view(['POST'])
+def get_group_page(request):
+    group_id = request.data.get('group_id')
+    group_info = get_group_info_internal(group_id)
+    post_info = get_group_post_info_internal(group_id)
+    return Response({'group_info':group_info, 'post_info':post_info})
 
-
-#     # group admin list
-#     with connections['default'].cursor() as cursor:
-#         sql_query = 'SELECT GO.user_id FROM GROUP_OWNED GO WHERE GO.group_id = %s'
-#         cursor.execute(sql_query,[group_id])
-#         result = cursor.fetchall()
-#         owner_ids = [owner_id[0] for owner_id in result]
-    
-#     owner_info = []
-#     for owner_id in owner_ids:
-#         owner_data = get_user_name_and_profile_pic_from_user_id_internal(owner_id)
-#         owner = {}
-#         owner['user_id'] = owner_id
-#         owner['user_name'] = owner_data['user_name']
-#         owner['profile_pic'] = owner_data['profile_pic']
-#         owner_info.append(owner)
-            
-#     # group post list
-#     with connections['default'].cursor() as cursor:
-#         sql_query = 'SELECT PIG.post_id FROM POST_IN_GROUP PIG WHERE PIG.group_id = %s'
-#         cursor.execute(sql_query,[group_id])
-#         result = cursor.fetchall()
-#         post_ids = [post_id[0] for post_id in result]
-
-#     group_data = {}
-#     group_data['group_id'] = group_id
-#     group_data['group_name'] = group_name
-#     group_data['media'] = media
-#     group_data['description'] = description
-#     group_data['init_time'] = init_time
-#     group_data['update_time'] = update_time
-#     return group_data
-
-# @api_view
-# def group_page(request):
-#     pass
-
-
-
+@api_view(['POST'])
+def set_group_post(request):
+    try:
+        user_id = request.POST.get('user_id')
+        group_id = request.POST.get('group_id')
+        description = request.POST.get('description')
+        uploaded_image = request.FILES['media']
+        description_id = set_card_description_internal(description)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
+        post_id = set_post_internal(user_id, description_id, 'group_post')
+        with connections['default'].cursor() as cursor:
+            sql_query = "INSERT INTO POST_IN_GROUP (post_id, group_id) VALUES (%s,%s)"
+            cursor.execute(sql_query,[post_id,group_id])
+        return JsonResponse({'message': 'Image uploaded successfully'})
+    except IntegrityError:
+        return Response({"error": "IntegrityError: User already exists"}, status=400)
+    except DataError:
+        return Response({"error": "DataError: Invalid data format"}, status=400)
+    except Exception as e:
+        return Response({"error": f"An error occurred: {str(e)}"}, status=500)
