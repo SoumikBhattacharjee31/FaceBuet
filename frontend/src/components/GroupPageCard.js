@@ -16,6 +16,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Comments from "./Comments";
 import PostMenu from "./PostMenu";
+import axios from "axios";
+import Button from "@mui/material/Button";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -43,11 +45,66 @@ const mediaStyles = {
 
 export default function Post({open, setCurrentComponent, postData, setUpdatePostId}) {
   // const postData = props.postData;
-  const [expanded, setExpanded] = React.useState(false);
-  const [commentInfo, setCommentInfo] = React.useState([]);
+  const [data, setData] = React.useState("");
 
-  const handleExpandClick = async () => {
-    setExpanded(!expanded);
+  React.useEffect(() => {
+    
+    axios
+      .post("http://localhost:8000/api/is_in_group/", {user_id:localStorage.getItem('user_id'),group_id:postData.group_id}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then (response => {
+        setData(response.data.status);
+      })
+  }, []);
+
+  // const handleDiswon = () => {
+  //   axios
+  //     .post("http://localhost:8000/api/delete_user/", {user_id:localStorage.getItem('user_id')}, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     })
+  // };
+
+  const handleDelete = () => {
+    axios
+      .post("http://localhost:8000/api/delete_group/", {group_id:postData.group_id}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  };
+
+  const handleLeave = () => {
+    axios
+      .post("http://localhost:8000/api/leave_from_group/", {user_id:localStorage.getItem('user_id'),group_id:postData.group_id}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  };
+
+  const handleUnsend = () => {
+    axios
+      .post("http://localhost:8000/api/reject_req_in_group/", {user_id:localStorage.getItem('user_id'),group_id:postData.group_id}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  };
+
+  const handleJoin = () => {
+    axios
+      .post("http://localhost:8000/api/send_req_in_group/", {user_id:localStorage.getItem('user_id'), group_id:postData.group_id}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  };
+  const showRequestList = () => {
+    setCurrentComponent("groupreq")
   };
 
   return (
@@ -83,29 +140,14 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        {/* <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-          Comments
-        </ExpandMore> */}
+        {/* {data === "owner"  && <Button variant="contained" onClick={handleDiswon}>Disown Group</Button>} */}
+        {data === "owner"  && <Button variant="contained" onClick={handleDelete}>Delete Group</Button>}
+        {data === "owner"  && <Button variant="contained" onClick={showRequestList}>Requests</Button>}
+        {data === "member"  && <Button variant="contained" onClick={handleLeave}>Leave Group</Button>}
+        {data === "requested"  && <Button variant="contained" onClick={handleUnsend}>Unsend Request</Button>}
+        {data === "none"  && <Button variant="contained" onClick={handleJoin}>Join Group</Button>}
+
       </CardActions>
-      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>
-            <Comments post_id={postData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/>
-          </Typography>
-        </CardContent>
-      </Collapse> */}
     </Card>
   );
 }

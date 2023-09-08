@@ -85,7 +85,7 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
         ) : 
             (
               <>
-              <GroupPageCard postData={data.group_info} />
+              <GroupPageCard postData={data.group_info} setCurrentComponent={setCurrentComponent} />
               { data.post_info?
                 data.post_info.map((postData, index) => (
                   <Post key={index} postData={postData} />

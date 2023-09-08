@@ -14,6 +14,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import axios from "axios";
+import Button from "@mui/material/Button";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -26,42 +28,39 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-const cardStyles = {
-  display: "flex",
-  flexDirection: "column",
-  // maxWidth: 1000, // Set the maximum width to make it moderately larger
-  border: "2px solid #ccc",
-  borderRadius: "10px",
-};
+export default function GroupReqCard({postData, setCurrentComponent, setProfileId, profileId, groupId}) {
 
-const mediaStyles = {
-  flex: "1",
-  objectFit: "cover",
-};
 
-export default function SearchCard({postData, setCurrentComponent, setProfileId}) {
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
 
   const gotoProfile = ()=>{
     setProfileId(postData.user_id)
     setCurrentComponent("Profile")
   }
+  const handleAccept = ()=>{
+    axios
+      .post("http://localhost:8000/api/accept_req_in_group/", {user_id:postData.user_id,group_id:groupId}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  }
+  const handleReject = ()=>{
+    axios
+      .post("http://localhost:8000/api/reject_req_in_group/", {user_id:postData.user_id,group_id:groupId}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+  }
 
   return (
-    <Card sx={cardStyles}>
+    <Card sx={{Width: 500, border: "2px solid #ccc", borderRadius: "10px" }}>
       <CardHeader
       onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
-              src={postData.profile_pic}
-              alt="R"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            {/* <img src={postData.media[0]} alt="R"></img> */}
+            <img src={postData.media} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
         }
         action={
@@ -70,40 +69,13 @@ export default function SearchCard({postData, setCurrentComponent, setProfileId}
           </IconButton>
         }
         title={postData.user_name}
-        subheader='User'
+        // subheader={postData.init_time}
+        // subheader="August 21 , 2023"
       />
-      {/* <CardMedia
-        component="img"
-        image={postData.profile_pic[0]}
-        alt="Paella dish"
-        sx={mediaStyles}
-      />
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {postData.description}
-        </Typography>
-      </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
+      <Button variant="contained" onClick={handleAccept}>Accept</Button>
+      <Button variant="contained" onClick={handleReject}>Reject</Button>
       </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph></Typography>
-        </CardContent>
-      </Collapse> */}
     </Card>
   );
 }

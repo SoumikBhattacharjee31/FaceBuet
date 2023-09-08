@@ -29,7 +29,6 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function ProfileCard({postData}) {
-  const [expanded, setExpanded] = React.useState(false);
   const [data, setData] = React.useState("");
 
   const handleDeleteUser = () => {

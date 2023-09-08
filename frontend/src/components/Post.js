@@ -64,7 +64,7 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
           </Avatar>
         }
         action={
-          <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
+          localStorage.getItem('user_id')==postData.user_id && <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
         title={postData.user_name}
         subheader={postData.init_time}

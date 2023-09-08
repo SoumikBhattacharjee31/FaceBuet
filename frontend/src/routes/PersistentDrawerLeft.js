@@ -22,6 +22,7 @@ import Chat from "../components/Chat";
 import GroupPage from "../components/GroupPage";
 import CreateGroupPost from "../components/CreateGroupPost";
 import FriendReqSent from "../components/FriendReqSent";
+import GroupReq from "../components/GroupReq";
 
 
 export default function PersistentDrawerLeft() {
@@ -54,7 +55,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "MarketPlace" && < MarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "createmarketplace" && < CreateMarketPlace open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} />}
       { currentComponent === "Profile" && < Profile open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId = {profileId} />}
-      { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} setProfileId={setProfileId} />}
+      { currentComponent === "search" && < SearchPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} searchData = {searchData} setProfileId={setProfileId} setGroupId={setGroupId} />}
       { currentComponent === "editpost" && < UpdatePost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} post_id = {updatePostId} />}
       { currentComponent === "Chat" && < Chat open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} friend_id = {profileId} />}
       { currentComponent === "GroupPage" && < GroupPage open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
@@ -63,6 +64,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "shareingroup" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
       { currentComponent === "shareinpage" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
       { currentComponent === "shareinevent" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
+      { currentComponent === "groupreq" && < GroupReq open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId={profileId} groupId={groupId} setGroupId={setGroupId}/>}
       <RightSidebar/>
     </Box>
   );

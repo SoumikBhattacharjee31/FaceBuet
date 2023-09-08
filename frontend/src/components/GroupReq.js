@@ -1,11 +1,10 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import SearchCard from "../components/SearchCard";
-import SearchGroupCard from "../components/SearchGroupCard";
+import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
-
+import GroupReqCard from "./GroupReqCard";
 
 const drawerWidth = 240;
 
@@ -37,22 +36,35 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function SearchPage({open, setCurrentComponent, searchData, setProfileId, setGroupId}) {
-  console.log(searchData.group_data)
+export default function GroupReq({open, setCurrentComponent, setProfileId, setGroupId, profileId, groupId }) {
+  const fetched_user_id = localStorage.getItem("user_id");
+  const request_data = {user_id:fetched_user_id,group_id:groupId};
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  React.useEffect(() => {
+    
+    const response = axios
+      .post("http://localhost:8000/api/group_reqs/", request_data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then (response => {
+        setData(response.data);
+        setIsLoading(false);
+      })
+  }, []);
+
   return (
     <Box sx={{ display: "flex" }}>
       <Main open={open}>
         <DrawerHeader />
-        {/* {isLoading ? (
+        {isLoading ? (
           <></>
-        ) : ( */}
-          {searchData.user_data && searchData.user_data.map((postData, index) => (
-            <SearchCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setProfileId={setProfileId} />
-          ))}
-          {searchData.group_data && searchData.group_data.map((postData, index) => (
-            <SearchGroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
-          ))}
-        {/* )} */}
+        ) : (
+          data.map((postData, index) => (
+            <GroupReqCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setProfileId={setProfileId} profileId={profileId} groupId={groupId} />
+          ))
+        )}
       </Main>
     </Box>
   );

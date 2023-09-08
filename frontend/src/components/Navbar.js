@@ -111,28 +111,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, setSearchData, setProfileId }) {
 
   const theme = useTheme();
-  // const [data, setData] = React.useState([]);
-  const [searchInput, setSearchInput] = React.useState("");
-  // const [isLoading, setIsLoading] = React.useState(true);
-
-  // const handleSearchChange = async (event) =>{
-  //   const request_data = {key:event.target.value}
-  //   setSearchInput(event.target.value)
-  //   console.log(request_data)
-  //   // React.useEffect(() => {
-    
-  //     const response = axios
-  //       .post("http://localhost:8000/api/search_users/", request_data, {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }).then (response => {
-  //         setData(response.data);
-  //         console.log(data)
-  //         // setIsLoading(false);
-  //       })
-  //   // }, []);
-  // }
 
   const onRightSidebarButtonClick = async(text)=>{
     if(text==="Profile"){
@@ -145,8 +123,8 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
   const handleSearchChange = async (event) => {
     // setCurrentComponent('search')
   const inputValue = event.target.value;
-  setSearchInput(inputValue);
-  console.log(inputValue);
+  let user_data = []
+  let group_data = []
 
   try {
     if(inputValue!="")
@@ -160,16 +138,30 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
       }
     );
     console.log(setSearchData)
-    setSearchData(response.data);
+    user_data = response.data
     }
-    else
-      setSearchData([])
 
-    // console.log(response.data);
-    // setIsLoading(false); // You can uncomment this if you need it
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
+    if(inputValue!="")
+    {const response = await axios.post(
+      "http://localhost:8000/api/search_groups/",
+      { key: inputValue },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(setSearchData)
+    group_data = response.data
+    
+    }
+  setSearchData({user_data:user_data,group_data:group_data})
+  
+  // console.log(response.data);
+  // setIsLoading(false); // You can uncomment this if you need it
+} catch (error) {
+  console.error("Error fetching data:", error);
+}
 };
 
   
@@ -221,28 +213,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
             />
           </Search>
         </Toolbar>
-      {/* <List style={{zIndex:"100"}}>
-        {data && data.map((item) => (
-          <ListItem key={item.id}>
-            <ListItemText primary={item.user_name} /> 
-          </ListItem>
-        ))}
-      </List> */}
-      {/* <datalist id="list">
-          { data.map( d => <option key={d.id} value={d.user_name} /> )}
-        </datalist> */}
-        {/* <form> */}
-        {/* <label htmlFor="cars">Type a car:</label> */}
-        {/* <input list="list" id="cars" name="car"/>
-            <datalist id="list">
-            { data.map( d => <option key={d.id} value={d.user_name} /> )}
-            </datalist> */}
-            {/* <br/><br/> */}
-            {/* <input type="submit" value="Submit"/> */}
-    {/* </form> */}
       </AppBar>
-      {/* Navbar end */}
-      {/* Left Sidebar Start */}
       <Drawer
         sx={{
           width: drawerWidth,
