@@ -13,10 +13,7 @@ export default function Post({
     fire: "🔥",
   });
 
-  const handleShareMenuClose = () => {
-    setAnchorE2(null);
-    setShareMenuOpen(false);
-  };
+
 
   const handleReaction = async (reaction) => {
     try {

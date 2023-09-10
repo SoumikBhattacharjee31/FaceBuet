@@ -157,7 +157,7 @@ def get_user_name_and_single_profile_pic_from_user_id_internal(user_id):
             cursor.execute(sql_query,[user_id])
             user_name = cursor.fetchall()[0][0]
         with connections['default'].cursor() as cursor:
-            sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+            sql_query = "SELECT create_media_url(CDM.media_id) FROM USER_PROFILE_PIC UPP "
             sql_query+= "JOIN POST P ON UPP.post_id = P.post_id "
             sql_query+= "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
             sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON P.description_id = CDM.description_id "
@@ -166,7 +166,7 @@ def get_user_name_and_single_profile_pic_from_user_id_internal(user_id):
             cursor.execute(sql_query,[user_id])
             medias = cursor.fetchall()
             try:
-                media = image_path+str(medias[0][0])
+                media = medias[0][0]
             except Exception as e:
                 media = ""
         data = {}
@@ -184,7 +184,7 @@ def get_group_name_and_single_media_from_group_id_internal(group_id):
             cursor.execute(sql_query,[group_id])
             user_name = cursor.fetchall()[0][0]
         with connections['default'].cursor() as cursor:
-            sql_query = "SELECT CDM.media_id FROM GROUPS G "
+            sql_query = "SELECT create_media_url(CDM.media_id) FROM GROUPS G "
             sql_query+= "JOIN CARD_DESCRIPTION CD ON G.description_id = CD.description_id "
             sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON G.description_id = CDM.description_id "
             sql_query+= "WHERE G.group_id = %s "
@@ -192,7 +192,7 @@ def get_group_name_and_single_media_from_group_id_internal(group_id):
             cursor.execute(sql_query,[group_id])
             medias = cursor.fetchall()
             try:
-                media = image_path+str(medias[0][0])
+                media = medias[0][0]
             except Exception as e:
                 media = ""
         data = {}
@@ -471,10 +471,11 @@ def signIn(request):
     try:
         email = request.data.get('email')
         password = request.data.get('password')
+        print(email, password)
         if not email or not password:
             return JsonResponse({'error': 'Both email and password are required.'}, status=400)
         with connections['default'].cursor() as cursor:
-            sql_query = "SELECT user_id FROM USERS WHERE email = %s AND password = %s"
+            sql_query = "SELECT user_id FROM USERS WHERE email = %s AND password = hash_password_function(%s)"
             cursor.execute(sql_query, [email, password])
             rows = cursor.fetchall()
         if not rows:
@@ -482,8 +483,10 @@ def signIn(request):
         user_id = rows[0][0]
         return Response({'user_id': user_id})
     except DatabaseError as e:
+        print(e)
         return JsonResponse({'error': 'Database error occurred.'}, status=500)
     except Exception as e:
+        print(e)
         return JsonResponse({'error': 'An unexpected error occurred.'}, status=500)
 
 @api_view(['POST'])
@@ -1129,7 +1132,7 @@ def get_user_profile(request):
             profile_data['profile_pic'] =  profile_pic
         # cover_photo
         with connections['default'].cursor() as cursor:
-            sql_query =  "SELECT CDM.media_id FROM USERS U "
+            sql_query =  "SELECT create_media_url(CDM.media_id) FROM USERS U "
             sql_query += "JOIN USER_COVER_PHOTO UCP ON U.user_id = UCP.user_id "
             sql_query += "JOIN POST P ON UCP.post_id = P.post_id "
             sql_query += "JOIN CARD_DESCRIPTION CD ON P.description_id = CD.description_id "
@@ -1140,7 +1143,7 @@ def get_user_profile(request):
             cover_photos = cursor.fetchall()
             cover_photo = []
             for row in cover_photos:
-                cover_photo.append(image_path+str(row[0]))
+                cover_photo.append(row[0])
             profile_data['cover_photo'] = cover_photo
 
         # friends count
@@ -1271,14 +1274,6 @@ def update_user_post(request):
     except Exception as e:
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
-        return JsonResponse({'message': 'Image uploaded successfully'})
-    except IntegrityError:
-        return Response({"error": "IntegrityError: User already exists"}, status=400)
-    except DataError:
-        return Response({"error": "DataError: Invalid data format"}, status=400)
-    except Exception as e:
-        return Response({"error": f"An error occurred: {str(e)}"}, status=500)
-
 def delete_user_post_internal(post_id):
     try:
         with connections['default'].cursor() as cursor:
@@ -1319,13 +1314,13 @@ def get_user_name_and_profile_pic_from_user_id_internal(user_id):
             cursor.execute(sql_query,[user_id])
             user_name = cursor.fetchall()[0][0]
         with connections['default'].cursor() as cursor:
-            sql_query = "SELECT CDM.media_id FROM USER_PROFILE_PIC UPP "
+            sql_query = "SELECT create_media_url(CDM.media_id) FROM USER_PROFILE_PIC UPP "
             sql_query+= "JOIN POST P ON UPP.post_id = P.post_id "
             sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON P.description_id = CDM.description_id "
             sql_query+= "WHERE UPP.user_id = %s "
             cursor.execute(sql_query,[user_id])
             medias = cursor.fetchall()
-            media = [image_path+str(row[0]) for row in medias]
+            media = [row[0] for row in medias]
         data = {}
         data['user_name'] = user_name
         data['profile_pic'] = media
@@ -1336,11 +1331,11 @@ def get_user_name_and_profile_pic_from_user_id_internal(user_id):
 def get_media_from_description_id_internal(description_id):
     try:
         with connections['default'].cursor() as cursor:
-            sql_query = "SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM "
+            sql_query = "SELECT create_media_url(CDM.media_id) FROM CARD_DESCRIPTION_MEDIA CDM "
             sql_query+= "WHERE CDM.description_id = %s "
             cursor.execute(sql_query,[description_id])
             medias = cursor.fetchall()
-            media = [image_path+str(row[0]) for row in medias]
+            media = [row[0] for row in medias]
         return media
     except Exception as e:
         print("Error Getting Media From Description ID: "+str(e))
@@ -1494,6 +1489,7 @@ def delete_user(request):
         sql_query = "DELETE FROM USERS WHERE user_id = %s"
         cursor.execute(sql_query,[user_id])
     return Response("success")
+
 @api_view(['POST'])
 def unfriend(request):
     user_id = request.data.get('user_id')
@@ -1502,6 +1498,7 @@ def unfriend(request):
         sql_query = "DELETE FROM BEFRIENDS WHERE (user_id=%s AND friend_id=%s) OR (user_id=%s AND friend_id=%s)"
         cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
     return Response("success")
+
 @api_view(['POST'])
 def delete_request(request):
     user_id = request.data.get('user_id')
@@ -1510,6 +1507,7 @@ def delete_request(request):
         sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
         cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
     return Response("success")
+
 @api_view(['POST'])
 def send_request(request):
     user_id = request.data.get('user_id')
@@ -1518,16 +1516,16 @@ def send_request(request):
         sql_query = "INSERT INTO FRIEND_REQ (user_id,friend_req_id) VALUES (%s,%s) "
         cursor.execute(sql_query,[user_id,friend_id])
     return Response("success")
+
 @api_view(['POST'])
 def accept_request(request):
     user_id = request.data.get('user_id')
     friend_id = request.data.get('friend_id')
+    sql_query = 'BEGIN '
+    sql_query+= 'accept_friend_req(p_friend_req_id => %s, p_user_id => %s); '
+    sql_query+= 'END;/'
     with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
-        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
-    with connections['default'].cursor() as cursor:
-        sql_query = "INSERT INTO BEFRIENDS (user_id,friend_id) VALUES (%s,%s) "
-        cursor.execute(sql_query,[user_id,friend_id])
+        cursor.execute(sql_query,[friend_id,user_id])
     return Response("success")
 
 @api_view(['POST'])
@@ -1564,6 +1562,7 @@ def delete_group(request):
     for post_id in post_ids:
         delete_user_post_internal(post_id)
     return Response({"message":"success"})
+
 @api_view(['POST'])
 def group_reqs(request):
     group_id = request.data.get('group_id')
@@ -1582,18 +1581,21 @@ def send_req_in_group(request):
         sql_query = "INSERT INTO GROUP_REQUESTED(group_id,user_id) VALUES (%s,%s)"
         cursor.execute(sql_query,[group_id,user_id])
     return Response({"message":"success"})
+
 @api_view(['POST'])
 def accept_req_in_group(request):
     group_id = request.data.get('group_id')
     user_id = request.data.get('user_id')
-    print(user_id,group_id)
+    sql_query = 'DECLARE '
+    sql_query+= 'v_result VARCHAR2(100); '
+    sql_query+= 'BEGIN '
+    sql_query+= 'accept_req_in_group(p_group_id => %s, p_user_id => %s); '
+    sql_query+= 'END;/'
     with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
         cursor.execute(sql_query,[group_id,user_id])
-    with connections['default'].cursor() as cursor:
-        sql_query = "INSERT INTO GROUP_MEMBERS(group_id,user_id) VALUES (%s,%s)"
-        cursor.execute(sql_query,[group_id,user_id])
+
     return Response({"message":"success"})
+
 @api_view(['POST'])
 def reject_req_in_group(request):
     group_id = request.data.get('group_id')
@@ -1602,6 +1604,7 @@ def reject_req_in_group(request):
         sql_query = "DELETE FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
         cursor.execute(sql_query,[group_id,user_id])
     return Response({"message":"success"})
+
 @api_view(['POST'])
 def leave_from_group(request):
     group_id = request.data.get('group_id')
@@ -1610,4 +1613,10 @@ def leave_from_group(request):
         sql_query = "DELETE FROM GROUP_MEMBERS WHERE group_id=%s AND user_id=%s"
         cursor.execute(sql_query,[group_id,user_id])
     return Response({"message":"success"})
-        
+
+# @api_view(['POST'])
+# def add_post_react(request):
+#     post_id = request.data.get('post_id')
+#     user_id = request.data.get('user_id')
+#     reaction = request.data.get('reaction')
+#     with connections
