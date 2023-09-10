@@ -37,34 +37,27 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function Profile({open, setCurrentComponent, profileId}) {
-  const fetched_user_id = profileId
-  const request_data = {user_id:fetched_user_id};
   const [data, setData] = React.useState([]);
   const [profilePosts, setProfilePosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const buttonStyle = {
-    width: '400px',  // Adjust the width as needed
-    height: '50px', // Adjust the height as needed
-  };
 
   React.useEffect(() => {
     
     axios
-      .post("http://localhost:8000/api/get_user_profile/", request_data, {
+      .post("http://localhost:8000/api/get_user_profile/", {user_id:profileId}, {
         headers: {
           "Content-Type": "application/json",
         },
       }).then (response => {
         setData(response.data);
         setIsLoading(false);
-        console.log(response.data)
       })
   }, []);
 
   React.useEffect(() => {
     
     axios
-      .post("http://localhost:8000/api/home/", request_data, {
+      .post("http://localhost:8000/api/home/", {user_id:profileId}, {
         headers: {
           "Content-Type": "application/json",
         },

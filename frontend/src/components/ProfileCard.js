@@ -31,6 +31,20 @@ const ExpandMore = styled((props) => {
 export default function ProfileCard({postData}) {
   const [data, setData] = React.useState("");
 
+  React.useEffect(() => {
+    console.log(localStorage.getItem('user_id'));
+    axios
+      .post("http://localhost:8000/api/is_friend/", {user_id:(localStorage.getItem('user_id')),friend_id:(postData.user_id)}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then (response => {
+        setData(response.data.status);
+        console.log(response.data.status)
+      })
+  }, []);
+
+
   const handleDeleteUser = () => {
     axios
       .post("http://localhost:8000/api/delete_user/", {user_id:localStorage.getItem('user_id')}, {
@@ -71,18 +85,6 @@ export default function ProfileCard({postData}) {
         },
       })
   };
-
-  React.useEffect(() => {
-    
-    axios
-      .post("http://localhost:8000/api/is_friend/", {user_id:localStorage.getItem('user_id'),friend_id:postData.user_id}, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then (response => {
-        setData(response.data.status);
-      })
-  }, []);
   
 
   return (

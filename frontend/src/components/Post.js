@@ -67,7 +67,10 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
           localStorage.getItem('user_id')==postData.user_id && <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={postData.post_id}/>
         }
         title={postData.user_name}
-        subheader={postData.init_time}
+        // subheader={`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`}
+        // subheader={Date(postData.init_time).toLocaleString()}
+        subheader={Date(postData.init_time)}
+        // subheader={postData.init_time}
       />
       <CardMedia
         component="img"

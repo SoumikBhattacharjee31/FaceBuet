@@ -30,7 +30,9 @@ import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import { alpha } from '@mui/material/styles';
 import axios from "axios";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 //start
 const Search = styled('div')(({ theme }) => ({
@@ -111,6 +113,13 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, setSearchData, setProfileId }) {
 
   const theme = useTheme();
+  const navigate = useNavigate();
+  // if(localStorage.getItem('user_id')==null)
+  //   navigate("/routes/SignIn");
+  const handleLogout = ()=>{
+    localStorage.removeItem('user_id');
+    navigate("/routes/SignIn");
+  }
 
   const onRightSidebarButtonClick = async(text)=>{
     if(text==="Profile"){
@@ -137,7 +146,6 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
         },
       }
     );
-    console.log(setSearchData)
     user_data = response.data
     }
 
@@ -151,7 +159,6 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
         },
       }
     );
-    console.log(setSearchData)
     group_data = response.data
     
     }
@@ -212,6 +219,9 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
               onClick={enableSearch}
             />
           </Search>
+          <IconButton aria-label="delete" onClick={handleLogout} >
+            <LogoutIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer

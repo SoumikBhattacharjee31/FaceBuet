@@ -136,7 +136,6 @@ export default function SignIn() {
               Sign In
             </Button>
             <div>
-              {/* Other form elements */}
               {error && <Alert severity="error">{error}</Alert>}
             </div>
             <Grid container>

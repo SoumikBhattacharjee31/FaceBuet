@@ -48,6 +48,8 @@ export default function SearchCard({postData, setCurrentComponent, setProfileId}
 
   const gotoProfile = ()=>{
     setProfileId(postData.user_id)
+    console.log('hello')
+    console.log(postData.user_id)
     setCurrentComponent("Profile")
   }
 

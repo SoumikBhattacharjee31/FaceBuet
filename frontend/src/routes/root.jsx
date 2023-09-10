@@ -19,6 +19,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 function Copyright(props) {
   return (
@@ -38,9 +40,14 @@ function Copyright(props) {
   );
 }
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 const defaultTheme = createTheme();
 
 function SignUp() {
+  const [data, setData] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -87,13 +94,30 @@ function SignUp() {
             // "X-CSRFToken": csrfToken,
           },
         })
-        if ('error' in response.data){console.log(response.data.error);}
+        setData(response.data)
+        if (response.data.error){handleSnackBar();}
         else {navigate("/routes/SignIn");}
       } catch (error) {console.log(error);}
     };
 
+    const [open, setOpen] = React.useState(false);
+    const handleSnackBar = () => {
+      setOpen(true);
+    };
+    const handleClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+      setOpen(false);
+    };
+
   return (
     <ThemeProvider theme={defaultTheme}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {data?data.error:""}
+        </Alert>
+      </Snackbar>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box

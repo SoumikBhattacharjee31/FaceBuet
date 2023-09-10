@@ -23,9 +23,11 @@ import GroupPage from "../components/GroupPage";
 import CreateGroupPost from "../components/CreateGroupPost";
 import FriendReqSent from "../components/FriendReqSent";
 import GroupReq from "../components/GroupReq";
+import { useNavigate } from "react-router-dom";
 
 
 export default function PersistentDrawerLeft() {
+  const navigate = useNavigate();
   const [profileId, setProfileId] = React.useState([]);
   const [groupId, setGroupId] = React.useState([]);
   const [searchData, setSearchData] = React.useState([]);
@@ -36,6 +38,10 @@ export default function PersistentDrawerLeft() {
   };
 
   const [currentComponent, setCurrentComponent] = React.useState("feed");
+
+  if(localStorage.getItem('user_id')==null){
+    return (<></>)
+  }
 
   return (
     <Box sx={{ display: "flex" }}>

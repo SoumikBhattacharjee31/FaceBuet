@@ -105,6 +105,7 @@ def set_user_internal(user_name, password, mobile_number, birth_date, email):
         return user_id
     except Exception as e:
         print("Error Setting User: "+str(e))
+        return False
 
 def set_profile_pic_internal(uploaded_image, user_id):
     try:
@@ -498,23 +499,32 @@ def setUsers(request):
         mobile_number = request.POST.get('mobile')
         birth_date = request.POST.get('birth_date')
         email = request.POST.get('email')
-        profile_pic = request.FILES['profile_pic']
-        cover_photo = request.FILES['cover_photo']
-        if user_name and password and mobile_number and birth_date and email:
-            user_id = set_user_internal(user_name, password, mobile_number, birth_date, email)
-            if profile_pic:
-                set_profile_pic_internal(profile_pic, user_id)
-            if cover_photo:
-                set_cover_photo_internal(cover_photo, user_id)
+        try:
+            profile_pic = request.FILES['profile_pic']
+        except Exception:
+            profile_pic = None
+        try:
+            cover_photo = request.FILES['cover_photo']
+        except Exception:
+            cover_photo = None
+        if not user_name or not password or not mobile_number or not birth_date or not email:
+            return  Response({"error":"Invalid Input! Fill the required fields"})
+        user_id = set_user_internal(user_name, password, mobile_number, birth_date, email)
+        if user_id==False:
+            return Response({"error":"Please choose different email or password"})
+        if profile_pic:
+            set_profile_pic_internal(profile_pic, user_id)
+        if cover_photo:
+            set_cover_photo_internal(cover_photo, user_id)
         return JsonResponse({"message": "User created successfully"})
     except IntegrityError:
-        print("error")
+        print("error","IntegrityError")
         return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
-        print("error")
+        print("error","DataError")
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
-        print("error")
+        print("error",str(e))
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
 @api_view(['POST'])
@@ -522,16 +532,18 @@ def set_user_post(request):
     try:
         user_id = request.POST.get('user_id')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
+        if not description and not uploaded_image:
+            return Response({"error":"Please provide a Description or Image"})
         description_id = set_card_description_internal(description)
         if uploaded_image:
             media_id = set_media_internal(uploaded_image)
             set_card_description_media_internal(description_id, media_id)
         post_id = set_post_internal(user_id, description_id, 'user_post')
         return JsonResponse({'message': 'Image uploaded successfully'})
-    except IntegrityError:
-        print("error")
-        return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
         print("error")
         return Response({"error": "DataError: Invalid data format"}, status=400)
@@ -1515,7 +1527,9 @@ def is_friend(request):
     try:
         user_id = request.data.get('user_id')
         friend_id = request.data.get('friend_id')
-        if user_id == friend_id:
+        print(user_id,friend_id)
+        if int(user_id) == int(friend_id):
+            print("worked?")
             return Response({"status":"own"})
         with connections['default'].cursor() as cursor:
             sql_query = "SELECT COUNT(*) FROM BEFRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)"
