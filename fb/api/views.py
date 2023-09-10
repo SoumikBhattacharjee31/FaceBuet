@@ -234,9 +234,19 @@ def get_post_info_internal(post_id):
         # reaction count
         with connections['default'].cursor() as cursor:
             sql_query =  "SELECT COUNT(*) FROM POST_REACT "
-            sql_query += "WHERE post_id = %s "
+            sql_query += "WHERE post_id = %s and reaction = 'fire'"
             cursor.execute(sql_query, [post_id])
-            react_count = cursor.fetchall()[0][0]
+            fire_count = cursor.fetchall()[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT COUNT(*) FROM POST_REACT "
+            sql_query += "WHERE post_id = %s and reaction = 'like'"
+            cursor.execute(sql_query, [post_id])
+            like_count = cursor.fetchall()[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query =  "SELECT COUNT(*) FROM POST_REACT "
+            sql_query += "WHERE post_id = %s and reaction = 'love'"
+            cursor.execute(sql_query, [post_id])
+            love_count = cursor.fetchall()[0][0]
 
         # share count
         with connections['default'].cursor() as cursor:
@@ -260,7 +270,9 @@ def get_post_info_internal(post_id):
         post_data['init_time'] = init_time
         post_data['update_time'] = update_time
         post_data['media'] = media
-        post_data['react_count'] = react_count
+        post_data['like_count'] = like_count
+        post_data['love_count'] = love_count
+        post_data['fire_count'] = fire_count
         post_data['share_count'] = share_count
         post_data['comment_count'] = comment_count
 
@@ -1232,12 +1244,18 @@ def set_post_comment(request):
     try:
         user_id = request.POST.get('user_id')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
         post_id = request.POST.get('post_id')
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
+        if not user_id or (not description and not uploaded_image):
+            return Response({"error":"Insufficient Info"})
         
-        media_id = set_media_internal(uploaded_image)
         description_id = set_card_description_internal(description)
-        set_card_description_media_internal(description_id, media_id)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
 
         with connections['default'].cursor() as cursor:
             post_comment_id_obj = cursor.var(int)
@@ -1255,12 +1273,18 @@ def set_comment_reply(request):
     try:
         user_id = request.POST.get('user_id')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
         comment_id = request.POST.get('comment_id')
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
+        if not user_id or (not description and not uploaded_image):
+            return Response({"error":"Insufficient Info"})
         
-        media_id = set_media_internal(uploaded_image)
         description_id = set_card_description_internal(description)
-        set_card_description_media_internal(description_id, media_id)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
 
         with connections['default'].cursor() as cursor:
             reply_id_obj = cursor.var(int)
@@ -1278,8 +1302,13 @@ def set_comment_reply(request):
 def update_user_post(request):
     try:
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
         post_id = request.POST.get('post_id')
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
+        if not post_id or (not description and not  uploaded_image):
+            return Response({"error":"Insufficient Information"})
         with connections['default'].cursor() as cursor:
             sql_query = "SELECT CDM.media_id FROM CARD_DESCRIPTION_MEDIA CDM JOIN POST P ON CDM.description_id = P.description_id WHERE P.post_id = %s"
             cursor.execute(sql_query,[post_id])
@@ -1294,14 +1323,9 @@ def update_user_post(request):
             sql_query = "UPDATE CARD_DESCRIPTION SET description=%s, update_time=SYSDATE WHERE description_id = %s"
             cursor.execute(sql_query,[description,description_id])
             
-        with connections['default'].cursor() as cursor:
-            sql_query = "SELECT M.media_id FROM MEDIA M "
-            sql_query+= "JOIN CARD_DESCRIPTION_MEDIA CDM ON M.media_id = CDM.media_id "
-            sql_query+= "JOIN POST P ON CDM.description_id = P.description_id "
-            sql_query+= "WHERE P.post_id = %s "
-            cursor.execute(sql_query, [post_id])
-        media_id = set_media_internal(uploaded_image)
-        set_card_description_media_internal(description_id, media_id)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
         for media_id in media:
             with connections['default'].cursor() as cursor:
                 sql_query = "DELETE FROM MEDIA WHERE media_id = %s"
@@ -1751,3 +1775,4 @@ def add_post_react(request):
     except Exception as e:
         print("Error",e)
         return Response({'error':str(e)})
+    # react

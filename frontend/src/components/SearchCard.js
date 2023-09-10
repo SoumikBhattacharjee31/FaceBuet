@@ -14,6 +14,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import PersonIcon from '@mui/icons-material/Person';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -59,17 +60,12 @@ export default function SearchCard({postData, setCurrentComponent, setProfileId}
       onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
+            {postData.profile_pic ? <img
               src={postData.profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            ></img> : <PersonIcon/>}
           </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
         }
         title={postData.user_name}
         subheader='User'

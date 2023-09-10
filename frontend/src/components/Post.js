@@ -43,6 +43,7 @@ const mediaStyles = {
 };
 
 export default function Post({open, setCurrentComponent, postData, setUpdatePostId}) {
+  console.log(postData);
   // const postData = props.postData;
   const [expanded, setExpanded] = React.useState(false);
   const [commentInfo, setCommentInfo] = React.useState([]);
@@ -56,11 +57,11 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
-              src={postData.media}
+            {postData.profile_pic && <img
+              src={postData.profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            ></img>}
           </Avatar>
         }
         action={
@@ -72,12 +73,12 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
         subheader={Date(postData.init_time)}
         // subheader={postData.init_time}
       />
-      <CardMedia
+      {postData.media[0] && <CardMedia
         component="img"
         image={postData.media[0]}
         alt="Paella dish"
         sx={mediaStyles}
-      />
+      />}
       <CardContent>
         <Typography variant="body2" color="text.secondary">
           {postData.description}

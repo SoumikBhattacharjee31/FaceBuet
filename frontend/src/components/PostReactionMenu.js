@@ -31,11 +31,12 @@ export default function Post({
       console.log(`User reacted with ${reaction}`);
       
       // Update the reactions state based on the response
-      setReactions((prevReactions) => ({
-        ...prevReactions,
-        [reaction]: prevReactions[reaction] + 1,
-      }));
-    } catch (error) {
+      // setReactions((prevReactions) => ({
+      //   ...prevReactions,
+      //   [reaction]: prevReactions[reaction] ,
+      // }));
+    } 
+    catch (error) {
       console.error("Error reacting to post:", error);
     }
   };
@@ -47,18 +48,21 @@ export default function Post({
           onClick={() => handleReaction("like")}
         >
           {reactions.like}
+          {postData.like_count}
         </IconButton>
         <IconButton
           aria-label="love"
           onClick={() => handleReaction("love")}
         >
           {reactions.love}
+          {postData.love_count}
         </IconButton>
         <IconButton
           aria-label="fire"
           onClick={() => handleReaction("fire")}
         >
           {reactions.fire}
+          {postData.fire_count}
         </IconButton>
         </>
   );

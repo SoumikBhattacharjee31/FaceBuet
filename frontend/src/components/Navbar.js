@@ -33,6 +33,7 @@ import axios from "axios";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
 //start
 const Search = styled('div')(({ theme }) => ({
@@ -182,7 +183,6 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
     Messages:"/",
     Pages:"/",
     Events:"/",
-    Videos:"/",
     MarketPlace:"/",
   };
 
@@ -257,7 +257,7 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
             } else if (text === "Friends") {
               iconComponent = <GroupIcon />;
             } else if (text === "Requests") {
-              iconComponent = <Diversity3Icon />;
+              iconComponent = <GroupAddIcon />;
             } else if (text === "Groups") {
               iconComponent = <Diversity3Icon />;
             }
@@ -269,9 +269,6 @@ export default function Navbar({ isOpen, toggleSidebar, setCurrentComponent, set
             }
             else if(text=="Events"){
               iconComponent=<EventIcon/>
-            }
-            else if(text=="Videos"){
-              iconComponent=<OndemandVideoIcon/>
             }
             else if(text=="MarketPlace"){
               iconComponent=<StorefrontIcon/>

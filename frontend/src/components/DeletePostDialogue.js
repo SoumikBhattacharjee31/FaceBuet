@@ -43,18 +43,18 @@ export default function DeletePostDialogue({post_id}) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          {"Are you sure about deleting this post?"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous
-            location data to Google, even when no apps are running.
+            You will not be able to recover this post once you click on the Agree button.
+            Are you sure to want to continue?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
+          <Button onClick={handleClose}>No</Button>
           <Button onClick={handleDelete} autoFocus>
-            Agree
+            Yes
           </Button>
         </DialogActions>
       </Dialog>

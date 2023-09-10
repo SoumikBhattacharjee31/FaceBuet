@@ -38,7 +38,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function SearchPage({open, setCurrentComponent, searchData, setProfileId, setGroupId}) {
-  console.log(searchData.group_data)
+  // console.log(searchData.group_data)
   return (
     <Box sx={{ display: "flex" }}>
       <Main open={open}>

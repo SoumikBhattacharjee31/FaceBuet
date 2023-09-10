@@ -71,7 +71,7 @@ export default function PersistentDrawerLeft() {
       { currentComponent === "shareinpage" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
       { currentComponent === "shareinevent" && < CreateGroupPost open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} groupId={groupId} setGroupId={setGroupId}/>}
       { currentComponent === "groupreq" && < GroupReq open={isSidebarOpen} setCurrentComponent = {setCurrentComponent} profileId={profileId} groupId={groupId} setGroupId={setGroupId}/>}
-      <RightSidebar/>
+      {/* <RightSidebar/> */}
     </Box>
   );
 }

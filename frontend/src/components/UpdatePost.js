@@ -138,7 +138,7 @@ export default function UpdatePost({open, setCurrentComponent, post_id}) {
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
                 >
-                    Create Post
+                    Edit Post
                 </Button>
           </Box>
           </Main>

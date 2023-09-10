@@ -32,17 +32,12 @@ export default function SearchGroupCard({postData, setCurrentComponent, setGroup
       onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            <img
+            {postData.media && <img
               src={postData.media}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>
+            ></img>}
           </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
         }
         title={postData.group_name}
         subheader={postData.group_type}

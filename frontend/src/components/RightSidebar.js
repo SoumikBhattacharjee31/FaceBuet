@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 
 //start
 
-const drawerWidth = 420;
+const drawerWidth = 300;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -49,7 +49,7 @@ export default function RightSidebar() {
           {/* You can add a close button if needed */}
         </DrawerHeader>
         <Divider />
-        <List>
+        {/* <List>
           {Object.entries(linksRight).map(([text, url]) => (
             <ListItem key={text} disablePadding>
               <Link
@@ -62,7 +62,7 @@ export default function RightSidebar() {
               </Link>
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Drawer>
       {/* Right Sidebar End */}
     </Box>
