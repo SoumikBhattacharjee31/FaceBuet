@@ -5,8 +5,6 @@ import axios from "axios";
 export default function Post({
   postData
 }) {
-  const [anchorE2, setAnchorE2] = React.useState(null);
-  const [shareMenuOpen, setShareMenuOpen] = React.useState(false);
   const [reactions, setReactions] = React.useState({
     like: "👍",
     love: "❤️",
@@ -16,12 +14,13 @@ export default function Post({
 
 
   const handleReaction = async (reaction) => {
+    console.log("hello")
     try {
       const user_id = localStorage.getItem("user_id");
 
     const request_data={reaction:reaction,user_id:user_id,post_id:postData.post_id}
       const response = await axios.post(
-        "http://localhost:8000/api/setPostReact/",
+        "http://localhost:8000/api/add_post_react/",
         request_data,
         {
           headers: {

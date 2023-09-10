@@ -81,15 +81,7 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        {/* <PostReactionMenu/> */}
-        {/* <IconButton aria-label="add to favorites">
-          {postData.react_count}
-          <FavoriteIcon />
-        </IconButton> */}
-        {/* <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton> */}
-        {/* <PostShareMenu/> */}
+        <PostReactionMenu postData={postData}/>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}

@@ -42,4 +42,5 @@ urlpatterns = [
     path('accept_req_in_group/', views.accept_req_in_group, name='accept_req_in_group'),
     path('reject_req_in_group/', views.reject_req_in_group, name='reject_req_in_group'),
     path('leave_from_group/', views.leave_from_group, name='leave_from_group'),
+    path('add_post_react/', views.add_post_react, name='add_post_react'),
 ]

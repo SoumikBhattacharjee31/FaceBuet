@@ -465,6 +465,7 @@ def homePage(request):
         return Response(post_infos)
     except Exception as e:
         print("Error making home page: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def signIn(request):
@@ -507,10 +508,13 @@ def setUsers(request):
                 set_cover_photo_internal(cover_photo, user_id)
         return JsonResponse({"message": "User created successfully"})
     except IntegrityError:
+        print("error")
         return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
+        print("error")
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
+        print("error")
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
 @api_view(['POST'])
@@ -526,10 +530,13 @@ def set_user_post(request):
         post_id = set_post_internal(user_id, description_id, 'user_post')
         return JsonResponse({'message': 'Image uploaded successfully'})
     except IntegrityError:
+        print("error")
         return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
+        print("error")
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
+        print("error")
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
 @api_view(['POST'])
@@ -565,7 +572,7 @@ def get_friend_list(request):
         return Response(profile_data)
     except Exception as e:
         print("Error Getting Friend List: "+str(e))
-        return JsonResponse({'message': 'error'})
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_sent_friend_req_list(request):
@@ -596,7 +603,7 @@ def get_sent_friend_req_list(request):
         return Response(profile_data)
     except Exception as e:
         print("Error Getting Friend Request List: "+str(e))
-        return JsonResponse({'message': 'error'})
+        return Response({'error':str(e)})
 @api_view(['POST'])
 def get_friend_req_list(request):
     try:
@@ -626,7 +633,7 @@ def get_friend_req_list(request):
         return Response(profile_data)
     except Exception as e:
         print("Error Getting Friend Request List: "+str(e))
-        return JsonResponse({'message': 'error'})
+        return Response({'error':str(e)})
 
 def get_user_as_member_group_id_internal(user_id, group_type):
     try:
@@ -643,6 +650,7 @@ def get_user_as_member_group_id_internal(user_id, group_type):
         return group_ids
     except Exception as e:
         print("Error Getting User As Number Group ID: "+str(e))
+        return Response({'error':str(e)})
         
 def get_user_not_member_or_owner_group_id_internal(user_id, group_type):
     try:
@@ -661,6 +669,7 @@ def get_user_not_member_or_owner_group_id_internal(user_id, group_type):
         return group_ids
     except Exception as e:
         print("Error Getting User Not Owner Or Member Number Group ID: "+str(e))
+        return Response({'error':str(e)})
         
 
 def get_user_as_owner_group_id_internal(user_id, group_type):
@@ -678,6 +687,7 @@ def get_user_as_owner_group_id_internal(user_id, group_type):
         return group_ids
     except Exception as e:
         print("Error Getting As Owner Group ID: "+str(e))
+        return Response({'error':str(e)})
         
         
 
@@ -717,6 +727,7 @@ def get_group_info_internal(group_id):
         return group_data
     except Exception as e:
         print("Error Getting Group Info: "+str(e))
+        return Response({'error':str(e)})
         
 
 
@@ -730,6 +741,7 @@ def get_rest_groups_internal(user_id, group_type):
         return groups_data
     except Exception as e:
         print("Error Getting Groups: "+str(e))
+        return Response({'error':str(e)})
         
 
 
@@ -743,6 +755,7 @@ def get_owned_groups_internal(user_id, group_type):
         return groups_data
     except Exception as e:
         print("Error Getting Owned Groups: "+str(e))
+        return Response({'error':str(e)})
         
 def get_membered_groups_internal(user_id, group_type):
     if not user_id or not group_type:
@@ -754,6 +767,7 @@ def get_membered_groups_internal(user_id, group_type):
         return groups_data
     except Exception as e:
         print("Error Getting Membered Groups: "+str(e))
+        return Response({'error':str(e)})
         
 
 @api_view(['POST'])
@@ -857,7 +871,8 @@ def get_chat_friend_list(request):
                 profile_data.append(temp_obj)
         return Response(profile_data)
     except Exception as e:
-        return JsonResponse({'message': 'error'})
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_events(request):
@@ -940,22 +955,27 @@ def get_events(request):
         return Response(groups_data)
     except Exception as e:
         print("Error Getting Events: "+str(e))
+        return Response({'error':str(e)})
 
 def get_event_info(group_id):
-    event_info = get_group_info_internal(group_id)
-    with connections['default'].cursor() as cursor:
-        sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
-        cursor.execute(sql_query,[group_id])
-        event_temp_info = cursor.fetchall()
-        event_id = event_temp_info[0]
-        start_time = event_temp_info[1]
-        end_time = event_temp_info[2]
-        location = event_temp_info[3]
-        event_info['event_id'] = event_id
-        event_info['start_time'] = start_time
-        event_info['end_time'] = end_time
-        event_info['location'] = location
-    return event_info
+    try:
+        event_info = get_group_info_internal(group_id)
+        with connections['default'].cursor() as cursor:
+            sql_query="SELECT E.event_id, E.start_time, E.end_time, E.location FROM EVENTS E WHERE E.group_id = %s"
+            cursor.execute(sql_query,[group_id])
+            event_temp_info = cursor.fetchall()
+            event_id = event_temp_info[0]
+            start_time = event_temp_info[1]
+            end_time = event_temp_info[2]
+            location = event_temp_info[3]
+            event_info['event_id'] = event_id
+            event_info['start_time'] = start_time
+            event_info['end_time'] = end_time
+            event_info['location'] = location
+        return event_info
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def set_event(request):
@@ -993,6 +1013,7 @@ def set_event(request):
         return JsonResponse({'message': 'Image uploaded successfully'})
     except Exception as e:
         print("Error Setting Event: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def search_users(request):
@@ -1021,6 +1042,7 @@ def search_users(request):
         return Response(serialized_results)
     except Exception as e:
         print("Error Searching Users: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def search_groups(request):
@@ -1053,6 +1075,7 @@ def search_groups(request):
         return Response(serialized_results)
     except Exception as e:
         print("Error Searching Groups: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_marketplace(request):
@@ -1095,6 +1118,7 @@ def get_marketplace(request):
         return Response(posts)
     except Exception as e:
         print("Error Getting Marketplace")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def set_marketplace(request):
@@ -1118,6 +1142,7 @@ def set_marketplace(request):
         return JsonResponse({'message': 'Image uploaded successfully'})
     except Exception as e:
         print("Error Setting Marketplace: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_user_profile(request):
@@ -1158,7 +1183,8 @@ def get_user_profile(request):
 
         return Response(profile_data)
     except Exception as e:
-        return JsonResponse({'message': 'error'})
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_comment_info(request):
@@ -1169,8 +1195,9 @@ def get_comment_info(request):
         comment_data = [get_comment_info_internal(comment_id) for comment_id in comment_ids]
         
         return Response(comment_data)
-    except Exception:
-        return JsonResponse({'message':'error'})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_reply_info(request):
@@ -1184,8 +1211,9 @@ def get_reply_info(request):
             reply_data.append(reply_info)
         
         return Response(reply_data)
-    except Exception:
-        return JsonResponse({'message':'error'})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def set_post_comment(request):
@@ -1207,6 +1235,7 @@ def set_post_comment(request):
         return Response({"message":"success"})
     except  Exception as e:
         print("Error Setting Post Comment: "+str(e))
+        return Response({'error':str(e)})
 
 
 @api_view(['POST'])
@@ -1231,6 +1260,7 @@ def set_comment_reply(request):
         return JsonResponse({'message': 'Image uploaded successfully'})
     except Exception as e:
         print("Error Setting Comment Reply: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def update_user_post(request):
@@ -1268,10 +1298,13 @@ def update_user_post(request):
 
         return JsonResponse({'message': 'Image uploaded successfully'})
     except IntegrityError:
+        print("error")
         return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
+        print("error")
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
+        print("error")
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
 
 def delete_user_post_internal(post_id):
@@ -1297,6 +1330,7 @@ def delete_user_post_internal(post_id):
         return JsonResponse({"message":"success"})
     except Exception as e:
         print("Error Deleting User Post: "+str(e))
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def delete_user_post(request):
@@ -1305,6 +1339,7 @@ def delete_user_post(request):
         return delete_user_post_internal(post_id)
     except Exception as e:
         print("Error Deleting User Post: "+str(e))
+        return Response({'error':str(e)})
 
 def get_user_name_and_profile_pic_from_user_id_internal(user_id):
     try:
@@ -1327,6 +1362,7 @@ def get_user_name_and_profile_pic_from_user_id_internal(user_id):
         return data
     except Exception as e:
         print ("Error Getting User Name And Profile Pic From User ID: "+str(e))
+        return Response({'error':str(e)})
 
 def get_media_from_description_id_internal(description_id):
     try:
@@ -1339,6 +1375,7 @@ def get_media_from_description_id_internal(description_id):
         return media
     except Exception as e:
         print("Error Getting Media From Description ID: "+str(e))
+        return Response({'error':str(e)})
     
 
 @api_view(['POST'])
@@ -1382,6 +1419,7 @@ def get_messages(request):
         return Response(message_info)
     except Exception  as e:
         print("Error Getting Message: "+str(e))
+        return Response({'error':str(e)})
         
 @api_view(['POST'])
 def set_message(request):
@@ -1412,26 +1450,39 @@ def set_message(request):
         return JsonResponse({'message': 'Image uploaded successfully'})
     except Exception as e:
         print("Error Setting Message: "+str(e))
+        return Response({'error':str(e)})
 
 def get_group_post_ids_internal(group_id):
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT * FROM POST_IN_GROUP PIG WHERE PIG.group_id = %s"
-        cursor.execute(sql_query,[group_id])
-        results = cursor.fetchall()
-    ret = [row[0] for row in results]
-    return ret
+    try:
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT * FROM POST_IN_GROUP PIG WHERE PIG.group_id = %s"
+            cursor.execute(sql_query,[group_id])
+            results = cursor.fetchall()
+        ret = [row[0] for row in results]
+        return ret
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 def get_group_post_info_internal(group_id):
-    post_ids = get_group_post_ids_internal(group_id)
-    post_info = [get_post_info_internal(post_id) for post_id in post_ids]
-    return post_info
+    try:
+        post_ids = get_group_post_ids_internal(group_id)
+        post_info = [get_post_info_internal(post_id) for post_id in post_ids]
+        return post_info
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def get_group_page(request):
-    group_id = request.data.get('group_id')
-    group_info = get_group_info_internal(group_id)
-    post_info = get_group_post_info_internal(group_id)
-    return Response({'group_info':group_info, 'post_info':post_info})
+    try:
+        group_id = request.data.get('group_id')
+        group_info = get_group_info_internal(group_id)
+        post_info = get_group_post_info_internal(group_id)
+        return Response({'group_info':group_info, 'post_info':post_info})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def set_group_post(request):
@@ -1450,173 +1501,239 @@ def set_group_post(request):
             cursor.execute(sql_query,[post_id,group_id])
         return JsonResponse({'message': 'Image uploaded successfully'})
     except IntegrityError:
+        print("error")
         return Response({"error": "IntegrityError: User already exists"}, status=400)
     except DataError:
+        print("error")
         return Response({"error": "DataError: Invalid data format"}, status=400)
     except Exception as e:
+        print("error")
         return Response({"error": f"An error occurred: {str(e)}"}, status=500)
     
 @api_view(['POST'])
 def is_friend(request):
-    user_id = request.data.get('user_id')
-    friend_id = request.data.get('friend_id')
-    if user_id == friend_id:
-        return Response({"status":"own"})
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM BEFRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)"
-        cursor.execute(sql_query, [user_id, friend_id, user_id, friend_id])
-        friend = cursor.fetchall()[0][0]
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
-        cursor.execute(sql_query, [user_id, friend_id])
-        sent_request = cursor.fetchall()[0][0]
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
-        cursor.execute(sql_query, [friend_id, user_id])
-        received_request = cursor.fetchall()[0][0]
-    if int(friend)>0:
-        return Response({"status":"friend"})
-    if int(sent_request)>0:
-        return Response({"status":"sent"})
-    if int(received_request)>0:
-        return Response({"status":"received"})
-    return Response({"status":"none"})
+    try:
+        user_id = request.data.get('user_id')
+        friend_id = request.data.get('friend_id')
+        if user_id == friend_id:
+            return Response({"status":"own"})
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM BEFRIENDS WHERE (user_id = %s AND friend_id = %s) OR (user_id = %s AND friend_id = %s)"
+            cursor.execute(sql_query, [user_id, friend_id, user_id, friend_id])
+            friend = cursor.fetchall()[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
+            cursor.execute(sql_query, [user_id, friend_id])
+            sent_request = cursor.fetchall()[0][0]
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM FRIEND_REQ WHERE user_id = %s AND friend_req_id = %s"
+            cursor.execute(sql_query, [friend_id, user_id])
+            received_request = cursor.fetchall()[0][0]
+        if int(friend)>0:
+            return Response({"status":"friend"})
+        if int(sent_request)>0:
+            return Response({"status":"sent"})
+        if int(received_request)>0:
+            return Response({"status":"received"})
+        return Response({"status":"none"})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def delete_user(request):
-    user_id = request.data.get('user_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM USERS WHERE user_id = %s"
-        cursor.execute(sql_query,[user_id])
-    return Response("success")
+    try:
+        user_id = request.data.get('user_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM USERS WHERE user_id = %s"
+            cursor.execute(sql_query,[user_id])
+        return Response({"success":"success"})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def unfriend(request):
-    user_id = request.data.get('user_id')
-    friend_id = request.data.get('friend_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM BEFRIENDS WHERE (user_id=%s AND friend_id=%s) OR (user_id=%s AND friend_id=%s)"
-        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
-    return Response("success")
+    try:
+        user_id = request.data.get('user_id')
+        friend_id = request.data.get('friend_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM BEFRIENDS WHERE (user_id=%s AND friend_id=%s) OR (user_id=%s AND friend_id=%s)"
+            cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+        return Response({"success":"success"})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def delete_request(request):
-    user_id = request.data.get('user_id')
-    friend_id = request.data.get('friend_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
-        cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
-    return Response("success")
+    try:
+        user_id = request.data.get('user_id')
+        friend_id = request.data.get('friend_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM FRIEND_REQ WHERE (user_id=%s AND friend_req_id=%s) OR (user_id=%s AND friend_req_id=%s)"
+            cursor.execute(sql_query,[user_id,friend_id,friend_id,user_id])
+        return Response({"success":"success"})
+    except Exception as e:
+        print("error")
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def send_request(request):
-    user_id = request.data.get('user_id')
-    friend_id = request.data.get('friend_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "INSERT INTO FRIEND_REQ (user_id,friend_req_id) VALUES (%s,%s) "
-        cursor.execute(sql_query,[user_id,friend_id])
-    return Response("success")
+    try:
+        user_id = request.data.get('user_id')
+        friend_id = request.data.get('friend_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "INSERT INTO FRIEND_REQ (user_id,friend_req_id) VALUES (%s,%s) "
+            cursor.execute(sql_query,[user_id,friend_id])
+        return Response({"success":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def accept_request(request):
-    user_id = request.data.get('user_id')
-    friend_id = request.data.get('friend_id')
-    sql_query = 'BEGIN '
-    sql_query+= 'accept_friend_req(p_friend_req_id => %s, p_user_id => %s); '
-    sql_query+= 'END;/'
-    with connections['default'].cursor() as cursor:
-        cursor.execute(sql_query,[friend_id,user_id])
-    return Response("success")
+    try:
+        user_id = request.data.get('user_id')
+        friend_id = request.data.get('friend_id')
+        sql_query = 'BEGIN '
+        sql_query+= 'accept_friend_req(p_friend_req_id => %s, p_user_id => %s); '
+        sql_query+= 'END;/'
+        with connections['default'].cursor() as cursor:
+            cursor.execute(sql_query,[friend_id,user_id])
+        return Response({"success":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def is_in_group(request):
-    user_id = request.data.get('user_id')
-    group_id = request.data.get('group_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM GROUP_MEMBERS WHERE group_id=%s AND user_id=%s"
-        cursor.execute(sql_query,[group_id,user_id])
-        member=int(cursor.fetchall()[0][0])
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM GROUP_OWNED WHERE group_id=%s AND user_id=%s"
-        cursor.execute(sql_query,[group_id,user_id])
-        owner=int(cursor.fetchall()[0][0])
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT COUNT(*) FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
-        cursor.execute(sql_query,[group_id,user_id])
-        requested=int(cursor.fetchall()[0][0])
-    if owner>0:
-        return Response({"status":"owner"})
-    if member>0:
-        return Response({"status":"member"})
-    if requested>0:
-        return Response({"status":"requested"})
-    return Response({"status":"none"})
+    try:
+        user_id = request.data.get('user_id')
+        group_id = request.data.get('group_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM GROUP_MEMBERS WHERE group_id=%s AND user_id=%s"
+            cursor.execute(sql_query,[group_id,user_id])
+            member=int(cursor.fetchall()[0][0])
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM GROUP_OWNED WHERE group_id=%s AND user_id=%s"
+            cursor.execute(sql_query,[group_id,user_id])
+            owner=int(cursor.fetchall()[0][0])
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT COUNT(*) FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
+            cursor.execute(sql_query,[group_id,user_id])
+            requested=int(cursor.fetchall()[0][0])
+        if owner>0:
+            return Response({"status":"owner"})
+        if member>0:
+            return Response({"status":"member"})
+        if requested>0:
+            return Response({"status":"requested"})
+        return Response({"status":"none"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def delete_group(request):
-    group_id = request.data.get('group_id')
-    post_ids = get_group_post_ids_internal(group_id)
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM GROUPS WHERE group_id = %s"
-        cursor.execute(sql_query,[group_id])
-    for post_id in post_ids:
-        delete_user_post_internal(post_id)
-    return Response({"message":"success"})
+    try:
+        group_id = request.data.get('group_id')
+        post_ids = get_group_post_ids_internal(group_id)
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM GROUPS WHERE group_id = %s"
+            cursor.execute(sql_query,[group_id])
+        for post_id in post_ids:
+            delete_user_post_internal(post_id)
+        return Response({"message":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def group_reqs(request):
-    group_id = request.data.get('group_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "SELECT user_id FROM GROUP_REQUESTED WHERE group_id = %s"
-        cursor.execute(sql_query,[group_id])
-        result = cursor.fetchall()
-    data = [get_user_name_and_single_profile_pic_from_user_id_internal(user_id[0]) for user_id in result]
-    return Response(data)
+    try:
+        group_id = request.data.get('group_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "SELECT user_id FROM GROUP_REQUESTED WHERE group_id = %s"
+            cursor.execute(sql_query,[group_id])
+            result = cursor.fetchall()
+        data = [get_user_name_and_single_profile_pic_from_user_id_internal(user_id[0]) for user_id in result]
+        return Response(data)
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def send_req_in_group(request):
-    group_id = request.data.get('group_id')
-    user_id = request.data.get('user_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "INSERT INTO GROUP_REQUESTED(group_id,user_id) VALUES (%s,%s)"
-        cursor.execute(sql_query,[group_id,user_id])
-    return Response({"message":"success"})
+    try:
+        group_id = request.data.get('group_id')
+        user_id = request.data.get('user_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "INSERT INTO GROUP_REQUESTED(group_id,user_id) VALUES (%s,%s)"
+            cursor.execute(sql_query,[group_id,user_id])
+        return Response({"message":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def accept_req_in_group(request):
-    group_id = request.data.get('group_id')
-    user_id = request.data.get('user_id')
-    sql_query = 'DECLARE '
-    sql_query+= 'v_result VARCHAR2(100); '
-    sql_query+= 'BEGIN '
-    sql_query+= 'accept_req_in_group(p_group_id => %s, p_user_id => %s); '
-    sql_query+= 'END;/'
-    with connections['default'].cursor() as cursor:
-        cursor.execute(sql_query,[group_id,user_id])
+    try:
+        group_id = request.data.get('group_id')
+        user_id = request.data.get('user_id')
+        sql_query = 'DECLARE '
+        sql_query+= 'v_result VARCHAR2(100); '
+        sql_query+= 'BEGIN '
+        sql_query+= 'accept_req_in_group(p_group_id => %s, p_user_id => %s); '
+        sql_query+= 'END;/'
+        with connections['default'].cursor() as cursor:
+            cursor.execute(sql_query,[group_id,user_id])
 
-    return Response({"message":"success"})
+        return Response({"message":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def reject_req_in_group(request):
-    group_id = request.data.get('group_id')
-    user_id = request.data.get('user_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
-        cursor.execute(sql_query,[group_id,user_id])
-    return Response({"message":"success"})
+    try:
+        group_id = request.data.get('group_id')
+        user_id = request.data.get('user_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM GROUP_REQUESTED WHERE group_id=%s AND user_id=%s"
+            cursor.execute(sql_query,[group_id,user_id])
+        return Response({"message":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
 @api_view(['POST'])
 def leave_from_group(request):
-    group_id = request.data.get('group_id')
-    user_id = request.data.get('user_id')
-    with connections['default'].cursor() as cursor:
-        sql_query = "DELETE FROM GROUP_MEMBERS WHERE group_id=%s AND user_id=%s"
-        cursor.execute(sql_query,[group_id,user_id])
-    return Response({"message":"success"})
+    try:
+        group_id = request.data.get('group_id')
+        user_id = request.data.get('user_id')
+        with connections['default'].cursor() as cursor:
+            sql_query = "DELETE FROM GROUP_MEMBERS WHERE group_id=%s AND user_id=%s"
+            cursor.execute(sql_query,[group_id,user_id])
+        return Response({"message":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
 
-# @api_view(['POST'])
-# def add_post_react(request):
-#     post_id = request.data.get('post_id')
-#     user_id = request.data.get('user_id')
-#     reaction = request.data.get('reaction')
-#     with connections
+@api_view(['POST'])
+def add_post_react(request):
+    try:
+        post_id = request.data.get('post_id')
+        user_id = request.data.get('user_id')
+        reaction = request.data.get('reaction')
+        sql_query = 'BEGIN '
+        sql_query+= 'INSERT_OR_UPDATE_POST_REACT(p_post_id => %s, p_user_id => %s, p_reaction => %s); '
+        sql_query+= 'END;/'
+        with connections['default'].cursor() as cursor:
+            print("hello")
+            cursor.execute(sql_query,[post_id,user_id,reaction])
+            print("world")
+        return JsonResponse({"success":"success"})
+    except Exception as e:
+        print("Error",e)
+        return Response({'error':str(e)})
