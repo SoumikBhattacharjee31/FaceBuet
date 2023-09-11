@@ -1,11 +1,10 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import GroupPageCard from "../components/GroupPageCard";
+import ProfileCard from "../components/ProfileCard";
 import Post from "../components/Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
-import SendIcon from '@mui/icons-material/Send';
 
 const drawerWidth = 240;
 
@@ -37,60 +36,39 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function GroupPage({open, setCurrentComponent, groupId, setGroupId}) {
-  const request_data = {group_id:groupId};
+export default function Profile({open, setCurrentComponent, profileId}) {
   const [data, setData] = React.useState([]);
-  const [status, setStatus] = React.useState(null);
   const [profilePosts, setProfilePosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-
 
   React.useEffect(() => {
     
     axios
-      .post("http://localhost:8000/api/get_group_page/", request_data, {
+      .post("http://localhost:8000/api/get_user_profile/", {user_id:profileId}, {
         headers: {
           "Content-Type": "application/json",
         },
       }).then (response => {
         setData(response.data);
         setIsLoading(false);
-        console.log(response.data)
       })
   }, []);
 
   React.useEffect(() => {
     
     axios
-      .post("http://localhost:8000/api/is_in_group/", {user_id:localStorage.getItem('user_id'),group_id:groupId}, {
+      .post("http://localhost:8000/api/home/", {user_id:profileId}, {
         headers: {
           "Content-Type": "application/json",
         },
       }).then (response => {
-        setStatus(response.data.status);
+        setProfilePosts(response.data);
+        setIsLoading(false);
       })
   }, []);
 
-  const handleButtonClick = () => {
-    setGroupId(groupId)
-    setCurrentComponent("creategrouppost")
-  };
-
   return (
     <Box sx={{ display: "flex" }}>
-      {<Button 
-      variant="contained" 
-      endIcon={<SendIcon />}
-      style={{
-        position: 'fixed',
-        bottom: '16px', // Adjust this value as needed
-        right: '430px', // Adjust this value as needed
-        zIndex: 100,
-      }}
-      onClick={handleButtonClick}
-      >
-        Create New Post
-      </Button>}
       <Main open={open}>
         <DrawerHeader />
         {isLoading ? (
@@ -98,12 +76,11 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
         ) : 
             (
               <>
-              <GroupPageCard postData={data.group_info} setCurrentComponent={setCurrentComponent} />
-              { data.post_info?
-                data.post_info.map((postData, index) => (
+              <ProfileCard postData={data} />
+              {
+                profilePosts.map((postData, index) => (
                   <Post key={index} postData={postData} />
                 ))
-                :<></>
               }
               </>
             
@@ -114,4 +91,5 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
     </Box>
   );
 };
+
 

@@ -78,7 +78,7 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
 
   return (
     <Box sx={{ display: "flex" }}>
-      {<Button 
+      {(status=="owner"|| data.group_info.group_type!='page') && <Button 
       variant="contained" 
       endIcon={<SendIcon />}
       style={{
@@ -93,7 +93,7 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
       </Button>}
       <Main open={open}>
         <DrawerHeader />
-        {isLoading ? (
+        {isLoading  (data &&(status!="member"||status!="owner")&&data.group_info.group_type=='group')  ? (
           <></>
         ) : 
             (
@@ -105,9 +105,10 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
                 ))
                 :<></>
               }
-              </>
-            
-            
+              </>       
+
+
+
             )
         }
       </Main>

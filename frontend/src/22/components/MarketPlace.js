@@ -1,11 +1,14 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import GroupPageCard from "../components/GroupPageCard";
-import Post from "../components/Post";
+import Post from "./Post";
 import axios from "axios";
 import Button from "@mui/material/Button";
+import MarketPlaceCard from "./MarketPlaceCard";
+import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
+import Stack from '@mui/material/Stack';
+import AddIcon from "@mui/icons-material/Add";
 
 const drawerWidth = 240;
 
@@ -37,50 +40,33 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function GroupPage({open, setCurrentComponent, groupId, setGroupId}) {
-  const request_data = {group_id:groupId};
+export default function MarketPlace({ open, setCurrentComponent }) {
+  const fetched_user_id = localStorage.getItem("user_id");
+  const request_data = { user_id: fetched_user_id };
   const [data, setData] = React.useState([]);
-  const [status, setStatus] = React.useState(null);
-  const [profilePosts, setProfilePosts] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-
-
   React.useEffect(() => {
-    
-    axios
-      .post("http://localhost:8000/api/get_group_page/", request_data, {
+    const response = axios
+      .post("http://localhost:8000/api/get_marketplace/", request_data, {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then (response => {
+      })
+      .then((response) => {
         setData(response.data);
         setIsLoading(false);
         console.log(response.data)
-      })
+      });
   }, []);
-
-  React.useEffect(() => {
-    
-    axios
-      .post("http://localhost:8000/api/is_in_group/", {user_id:localStorage.getItem('user_id'),group_id:groupId}, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then (response => {
-        setStatus(response.data.status);
-      })
-  }, []);
-
   const handleButtonClick = () => {
-    setGroupId(groupId)
-    setCurrentComponent("creategrouppost")
+    setCurrentComponent("createmarketplace")
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      {<Button 
+    <Box sx={{ position: 'relative', display: 'flex' }}>
+      <Button 
       variant="contained" 
-      endIcon={<SendIcon />}
+      endIcon={<AddIcon />}
       style={{
         position: 'fixed',
         bottom: '16px', // Adjust this value as needed
@@ -89,29 +75,18 @@ export default function GroupPage({open, setCurrentComponent, groupId, setGroupI
       }}
       onClick={handleButtonClick}
       >
-        Create New Post
-      </Button>}
+        Create
+      </Button>
       <Main open={open}>
         <DrawerHeader />
         {isLoading ? (
           <></>
-        ) : 
-            (
-              <>
-              <GroupPageCard postData={data.group_info} setCurrentComponent={setCurrentComponent} />
-              { data.post_info?
-                data.post_info.map((postData, index) => (
-                  <Post key={index} postData={postData} />
-                ))
-                :<></>
-              }
-              </>
-            
-            
-            )
-        }
+        ) : (
+          data.map((postData, index) => (
+            <MarketPlaceCard key={index} postData={postData} />
+          ))
+        )}
       </Main>
     </Box>
   );
-};
-
+}
