@@ -17,6 +17,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Comments from "./Comments";
 import PostMenu from "./PostMenu";
 import PostReactionMenu from "./PostReactionMenu";
+import PersonIcon from '@mui/icons-material/Person';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -57,11 +58,11 @@ export default function Post({open, setCurrentComponent, postData, setUpdatePost
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            {postData.profile_pic && <img
+            {postData.profile_pic ? <img
               src={postData.profile_pic}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>}
+            ></img>:<PersonIcon/>}
           </Avatar>
         }
         action={

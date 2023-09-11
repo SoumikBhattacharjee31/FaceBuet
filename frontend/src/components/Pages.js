@@ -8,6 +8,9 @@ import PageCard from "./PageCard";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import Stack from '@mui/material/Stack';
+import { Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import AddIcon from '@mui/icons-material/Add';
 
 const drawerWidth = 240;
 
@@ -64,7 +67,7 @@ export default function Pages({ open, setCurrentComponent, setGroupId }) {
     <Box sx={{ position: 'relative', display: 'flex' }}>
       <Button 
       variant="contained" 
-      endIcon={<SendIcon />}
+      endIcon={<AddIcon />}
       style={{
         position: 'fixed',
         bottom: '16px', // Adjust this value as needed
@@ -73,10 +76,12 @@ export default function Pages({ open, setCurrentComponent, setGroupId }) {
       }}
       onClick={handleButtonClick}
       >
-        Send
+        Create New Page
       </Button>
       <Main open={open}>
         <DrawerHeader />
+        <Divider>
+        <Typography>Suggested</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -84,6 +89,10 @@ export default function Pages({ open, setCurrentComponent, setGroupId }) {
             <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
+        <DrawerHeader/>
+            <Divider>
+            <Typography>Pages You Are Joined In</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -91,6 +100,10 @@ export default function Pages({ open, setCurrentComponent, setGroupId }) {
             <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
+        <DrawerHeader/>
+        <Divider>
+        <Typography>Your Pages</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -98,6 +111,7 @@ export default function Pages({ open, setCurrentComponent, setGroupId }) {
             <PageCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
       </Main>
     </Box>
   );

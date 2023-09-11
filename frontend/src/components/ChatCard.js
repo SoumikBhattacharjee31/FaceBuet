@@ -31,7 +31,7 @@ const ExpandMore = styled((props) => {
 const cardStyles = {
   display: "flex",
   flexDirection: "column",
-  // maxWidth: 1000, // Set the maximum width to make it moderately larger
+  maxWidth: 350, // Set the maximum width to make it moderately larger
   border: "2px solid #ccc",
   borderRadius: "10px",
 };
@@ -62,12 +62,6 @@ export default function ChatCard({open, setCurrentComponent, messageData, setUpd
             ></img>
           </Avatar>
         }
-        action={
-          // <IconButton aria-label="settings">
-          //   <MoreVertIcon />
-          // </IconButton>
-          <PostMenu setCurrentComponent={setCurrentComponent} setUpdatePostId={setUpdatePostId} post_id={messageData.post_id}/>
-        }
         title={messageData.sender_name}
         subheader={messageData.init_time}
       />
@@ -82,30 +76,6 @@ export default function ChatCard({open, setCurrentComponent, messageData, setUpd
           {messageData.description}
         </Typography>
       </CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-          Comments
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          {/* <Typography paragraph> */}
-            {/* <Comments post_id={messageData.post_id} open = {open} setCurrentComponent={setCurrentComponent}/> */}
-          {/* </Typography> */}
-        </CardContent>
-      </Collapse>
     </Card>
   );
 }

@@ -14,6 +14,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import PersonIcon from '@mui/icons-material/Person';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -45,54 +46,11 @@ export default function FriendReqCard({postData, setCurrentComponent, setProfile
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}
-            <img src={postData.media} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
+            {postData.media?<img src={postData.media} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>:<PersonIcon/>}
           </Avatar>
         }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
         title={postData.user_name}
-        // subheader={postData.init_time}
-        // subheader="August 21 , 2023"
       />
-      {/* <CardMedia
-        component="img"
-        height="194"
-        image={postData.media[0]}
-        alt="Paella dish"
-      /> */}
-      {/* <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {postData.description}
-        </Typography>
-      </CardContent> */}
-      {/* <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions> */}
-      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          
-          <Typography paragraph>
-           
-          </Typography>
-         
-        </CardContent>
-      </Collapse> */}
     </Card>
   );
 }

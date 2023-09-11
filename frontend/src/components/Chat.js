@@ -108,7 +108,7 @@ export default function Chat({open, setCurrentComponent, friend_id, setUpdatePos
           <Grid item xs={12}>
             <TextField
               id="outlined-multiline-flexible"
-              label="Multiline"
+              label="Write Message"
               multiline
               maxRows={4}
               fullWidth

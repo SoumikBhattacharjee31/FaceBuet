@@ -6,8 +6,10 @@ import axios from "axios";
 import Button from "@mui/material/Button";
 import GroupCard from "./GroupCard";
 import DeleteIcon from '@mui/icons-material/Delete';
-import SendIcon from '@mui/icons-material/Send';
+import AddIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
+import Divider from "@mui/material/Divider";
+import { Typography } from "@mui/material";
 
 const drawerWidth = 240;
 
@@ -64,7 +66,7 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
     <Box sx={{ position: 'relative', display: 'flex' }}>
       <Button 
       variant="contained" 
-      endIcon={<SendIcon />}
+      endIcon={<AddIcon />}
       style={{
         position: 'fixed',
         bottom: '16px', // Adjust this value as needed
@@ -73,10 +75,12 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
       }}
       onClick={handleButtonClick}
       >
-        Send
+        Create New Group
       </Button>
       <Main open={open}>
         <DrawerHeader />
+        <Divider>
+        <Typography>Suggested</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -84,6 +88,10 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
             <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
+        <DrawerHeader/>
+        <Divider>
+        <Typography>Groups You Are Joined In</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -91,6 +99,10 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
             <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        <Divider>
+        <DrawerHeader/>
+        </Divider>
+        <Typography>Your Groups</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -98,6 +110,7 @@ export default function Groups({ open, setCurrentComponent, setGroupId }) {
             <GroupCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
       </Main>
     </Box>
   );

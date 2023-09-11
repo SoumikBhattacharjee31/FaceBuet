@@ -8,6 +8,9 @@ import EventCard from "./EventCard";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import Stack from "@mui/material/Stack";
+import { Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import AddIcon from '@mui/icons-material/Add';
 
 const drawerWidth = 240;
 
@@ -74,10 +77,12 @@ export default function Events({ open, setCurrentComponent, setGroupId }) {
         }}
         onClick={handleButtonClick}
       >
-        Send
+        Create New Event
       </Button>
       <Main open={open}>
         <DrawerHeader />
+        <Divider>
+        <Typography>Suggested</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -85,6 +90,10 @@ export default function Events({ open, setCurrentComponent, setGroupId }) {
             <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
+        <DrawerHeader/>
+            <Divider>
+            <Typography>Pages You Are Joined In</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -92,6 +101,10 @@ export default function Events({ open, setCurrentComponent, setGroupId }) {
             <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
+        <DrawerHeader/>
+            <Divider>
+            <Typography>Your Events</Typography>
         {isLoading ? (
           <></>
         ) : (
@@ -99,6 +112,7 @@ export default function Events({ open, setCurrentComponent, setGroupId }) {
             <EventCard key={index} postData={postData} setCurrentComponent={setCurrentComponent} setGroupId={setGroupId} />
           ))
         )}
+        </Divider>
       </Main>
     </Box>
   );

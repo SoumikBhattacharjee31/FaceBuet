@@ -8,6 +8,7 @@ import MarketPlaceCard from "./MarketPlaceCard";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import Stack from '@mui/material/Stack';
+import AddIcon from "@mui/icons-material/Add";
 
 const drawerWidth = 240;
 
@@ -65,7 +66,7 @@ export default function MarketPlace({ open, setCurrentComponent }) {
     <Box sx={{ position: 'relative', display: 'flex' }}>
       <Button 
       variant="contained" 
-      endIcon={<SendIcon />}
+      endIcon={<AddIcon />}
       style={{
         position: 'fixed',
         bottom: '16px', // Adjust this value as needed
@@ -74,7 +75,7 @@ export default function MarketPlace({ open, setCurrentComponent }) {
       }}
       onClick={handleButtonClick}
       >
-        Send
+        Create
       </Button>
       <Main open={open}>
         <DrawerHeader />

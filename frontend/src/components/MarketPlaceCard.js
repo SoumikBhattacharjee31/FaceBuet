@@ -13,7 +13,7 @@ import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AddIcon from "@mui/icons-material/Add";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -39,14 +39,8 @@ export default function GroupCard(props) {
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            {/* <img src={postData.media[0]} alt="R"></img> */}
             <img src={postData.profile_pic} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
         }
         title={postData.product_name}
         subheader={postData.init_time}
@@ -63,31 +57,6 @@ export default function GroupCard(props) {
           {postData.description}
         </Typography>
       </CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          
-          <Typography paragraph>
-           
-          </Typography>
-         
-        </CardContent>
-      </Collapse>
     </Card>
   );
 }

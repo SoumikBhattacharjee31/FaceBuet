@@ -16,6 +16,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
+import PersonIcon from '@mui/icons-material/Person';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -93,7 +94,7 @@ export default function ProfileCard({postData}) {
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
             {/* <img src={postData.media[0]} alt="R"></img> */}
-            {postData.profile_pic && <img src={postData.profile_pic[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>}
+            {postData.profile_pic ? <img src={postData.profile_pic[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>:<PersonIcon/>}
           </Avatar>
         }
         action={
@@ -105,12 +106,12 @@ export default function ProfileCard({postData}) {
         subheader={postData.friend_count}
         // subheader="August 21 , 2023"
       />
-      <CardMedia
+      {postData.cover_photo && <CardMedia
         component="img"
         height="194"
-        image={postData.cover_photo?postData.cover_photo[0]:""}
+        image={postData.cover_photo[0]}
         alt="Paella dish"
-      />
+      />}
       <CardContent>
         <Typography variant="body2" color="text.secondary">
           {/* {postData.description} */}Hello

@@ -6,6 +6,7 @@ import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import { red } from "@mui/material/colors";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import GroupsIcon from '@mui/icons-material/Groups';
 
 
 const cardStyles = {
@@ -32,11 +33,11 @@ export default function SearchGroupCard({postData, setCurrentComponent, setGroup
       onClick={gotoProfile}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="post">
-            {postData.media && <img
+            {postData.media ? <img
               src={postData.media}
               alt="R"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            ></img>}
+            ></img>:<GroupsIcon/>}
           </Avatar>
         }
         title={postData.group_name}

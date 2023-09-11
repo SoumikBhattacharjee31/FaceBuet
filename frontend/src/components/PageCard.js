@@ -48,11 +48,6 @@ export default function PageCard({postData, setCurrentComponent, setGroupId}) {
             <img src={postData.media[0]} alt="R" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></img>
           </Avatar>
         }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
         title={postData.group_name}
         subheader={postData.init_time}
         // subheader="August 21 , 2023"
@@ -69,31 +64,6 @@ export default function PageCard({postData, setCurrentComponent, setGroupId}) {
           {postData.description}
         </Typography>
       </CardContent>
-      <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          
-          <Typography paragraph>
-           
-          </Typography>
-         
-        </CardContent>
-      </Collapse>
     </Card>
   );
 }
