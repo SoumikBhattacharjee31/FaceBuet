@@ -817,7 +817,10 @@ def set_group(request):
         user_id = request.POST.get('user_id')
         group_name = request.POST.get('group_name')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
         group_type = request.POST.get('group_type')
         description_id = set_card_description_internal(description)
         if uploaded_image:
@@ -1007,14 +1010,18 @@ def set_event(request):
         user_id = request.POST.get('user_id')
         event_name = request.POST.get('event_name')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
         group_type = 'event'
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
         location = request.POST.get('location')
-        media_id = set_media_internal(uploaded_image)
         description_id = set_card_description_internal(description)
-        set_card_description_media_internal(description_id, media_id)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
 
         with connections['default'].cursor() as cursor:
             group_id_obj = cursor.var(int)
@@ -1151,11 +1158,15 @@ def set_marketplace(request):
         product_name = request.POST.get('product_name')
         price = request.POST.get('price')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
         post_type = 'market'
-        media_id = set_media_internal(uploaded_image)
         description_id = set_card_description_internal(description)
-        set_card_description_media_internal(description_id, media_id)
+        if uploaded_image:
+            media_id = set_media_internal(uploaded_image)
+            set_card_description_media_internal(description_id, media_id)
         post_id = set_post_internal(user_id, description_id, post_type)
         with connections['default'].cursor() as cursor:
             marketplace_id_obj = cursor.var(int)
@@ -1463,11 +1474,14 @@ def set_message(request):
         user_id = request.POST.get('user_id')
         friend_id = request.POST.get('friend_id')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
-
-        if not user_id or not friend_id:
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
+        print(user_id,friend_id)
+        if not user_id and not friend_id:
             print("Invalid Input")
-            return
+            return Response({"error":"invalid input"})
         if not description:
             description=""
         
@@ -1526,7 +1540,10 @@ def set_group_post(request):
         user_id = request.POST.get('user_id')
         group_id = request.POST.get('group_id')
         description = request.POST.get('description')
-        uploaded_image = request.FILES['media']
+        try:
+            uploaded_image = request.FILES['media']
+        except Exception:
+            uploaded_image = None
         description_id = set_card_description_internal(description)
         if uploaded_image:
             media_id = set_media_internal(uploaded_image)

@@ -86,6 +86,18 @@ export default function ProfileCard({postData}) {
         },
       })
   };
+  const handleChat = () => {
+    const form_data = new FormData();
+    form_data.append("user_id",localStorage.getItem('user_id'));
+    form_data.append("friend_id",postData.user_id);
+    form_data.append("description","Hi");
+    axios
+      .post("http://localhost:8000/api/set_message/", {user_id:localStorage.getItem('user_id'),friend_id:postData.user_id,description:"Hi"}, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+  };
   
 
   return (
@@ -120,6 +132,7 @@ export default function ProfileCard({postData}) {
       <CardActions disableSpacing>
         {data === "own"  && <Button variant="contained" onClick={handleDeleteUser}>Delete Account</Button>}
         {data === "friend"  && <Button variant="contained" onClick={handleUnfriendUser}>Unfriend</Button>}
+        {data === "friend"  && <Button variant="contained" onClick={handleChat}>Send Message</Button>}
         {data === "sent"  && <Button variant="contained" onClick={handleRemoveRequest}>Unsend Request</Button>}
         {data === "received"  && <Button variant="contained" onClick={handleRemoveRequest}>Reject Request</Button>}
         {data === "received"  && <Button variant="contained" onClick={handleAcceptRequest}>Accept Request</Button>}
